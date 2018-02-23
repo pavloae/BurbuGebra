@@ -1,5 +1,6 @@
 package ar.com.andino.pablo.burbugebra;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.HashMap;
+
+import ar.com.andino.pablo.burbugebra.numeros.Fraccion;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button button = findViewById(R.id.button);
+        Button button1 = findViewById(R.id.button2);
 
         numerador = findViewById(R.id.editText1);
         denominador = findViewById(R.id.editText2);
@@ -33,11 +37,23 @@ public class MainActivity extends AppCompatActivity {
                 int num = Integer.valueOf(numerador.getText().toString());
                 int den = Integer.valueOf(denominador.getText().toString());
 
-                resultado.setText(num + " / " + den);
+                Fraccion fraccion = new Fraccion(num, den);
+
+                fraccion.simplificar();
+
+                resultado.setText(fraccion.numerador() + " / " + fraccion.denominador());
 
                 numerador.setText(factToString(getFactors(num)));
                 denominador.setText(factToString(getFactors(den)));
 
+            }
+        });
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+                startActivity(intent);
             }
         });
 
