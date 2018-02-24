@@ -1,50 +1,139 @@
 package ar.com.andino.pablo.burbugebra;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 
+import ar.com.andino.pablo.burbugebra.Elementos.Ecuacion;
+
 public class PlayActivity extends AppCompatActivity {
+
+    Lienzo lienzo;
+    private Paint mPaint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new PlayView(this));
-
+        lienzo = new Lienzo(this);
+        setContentView(lienzo);
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+        mPaint.setColor(Color.GREEN);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeWidth(12);
 
     }
 
-    public class PlayView extends View {
+    public class Lienzo extends View {
 
-        public PlayView(Context context) {
+        public int width;
+        public  int height;
+        private Bitmap mBitmap;
+        private Canvas mCanvas;
+        private Path mPath;
+        private Paint mBitmapPaint;
+        Context context;
+        private Paint circlePaint;
+        private Path circlePath;
+
+        private float mX, mY;
+        private static final float TOUCH_TOLERANCE = 64;
+
+        Ecuacion ecuacion;
+
+        public Lienzo(Context context) {
             super(context);
+            this.context = context;
+            mPath = new Path();
+            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+            circlePaint = new Paint();
+            circlePath = new Path();
+            circlePaint.setAntiAlias(true);
+            circlePaint.setColor(Color.BLUE);
+            circlePaint.setStyle(Paint.Style.STROKE);
+            circlePaint.setStrokeJoin(Paint.Join.MITER);
+            circlePaint.setStrokeWidth(4f);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mCanvas = new Canvas(mBitmap);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-
-            Path trazo = new Path();
-            trazo.addCircle(450, 600, 250, Path.Direction.CW);
-            //trazo.moveTo(50, 100);
-            //trazo.cubicTo(60,70, 150,90, 200,110);
-            //trazo.lineTo(300,200);
-            canvas.drawColor(Color.WHITE);
-            Paint pincel = new Paint();
-            pincel.setColor(Color.BLUE);
-            pincel.setStrokeWidth(8);
-            pincel.setStyle(Paint.Style.STROKE);
-            canvas.drawPath(trazo, pincel);
-            pincel.setStrokeWidth(1);
-            pincel.setStyle(Paint.Style.FILL_AND_STROKE);
-            pincel.setTextSize(60);
-            pincel.setTypeface(Typeface.MONOSPACE);
-            canvas.drawTextOnPath("Burbuja de Algebra", trazo, 10, 40, pincel);
+            super.onDraw(canvas);
+            canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
+            canvas.drawPath( mPath,  mPaint);
+            canvas.drawPath( circlePath,  circlePaint);
         }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+
+            performClick();
+
+            float x = event.getX();
+            float y = event.getY();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
+            }
+            return true;
+        }
+
+        private void touch_start(float x, float y) {
+            mPath.reset();
+            mPath.moveTo(x, y);
+            mX = x;
+            mY = y;
+        }
+
+        private void touch_move(float x, float y) {
+            float dx = Math.abs(x - mX);
+            float dy = Math.abs(y - mY);
+            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+                mPath.lineTo((x + mX)/2, (y + mY)/2);
+                //mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+                mX = x;
+                mY = y;
+
+                circlePath.reset();
+                circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
+            }
+        }
+
+        private void touch_up() {
+            mPath.lineTo(mX, mY);
+            circlePath.reset();
+            // commit the path to our offscreen
+            mCanvas.drawPath(mPath,  mPaint);
+            // kill this so we don't double draw
+            mPath.reset();
+        }
+
     }
 }

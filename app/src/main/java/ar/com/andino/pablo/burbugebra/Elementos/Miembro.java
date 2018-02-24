@@ -1,7 +1,10 @@
 package ar.com.andino.pablo.burbugebra.Elementos;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Miembro {
 
@@ -20,6 +23,17 @@ public class Miembro {
 
     public void addChar(Character character){
         terminos.get(selected).addChar(character);
+
+    }
+
+    public int obtenerAncho() {
+        float random = new Random().nextFloat();
+
+        return  20 + (int) (200 * random);
+
+    }
+
+    public void onDraw(Canvas canvas) {
 
     }
 
