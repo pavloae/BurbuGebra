@@ -2,21 +2,32 @@ package ar.com.andino.pablo.burbugebra;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
-import ar.com.andino.pablo.burbugebra.elementos.Ecuacion;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PlayActivity extends AppCompatActivity {
+import ar.com.andino.pablo.burbugebra.elementos.Bubble;
+import ar.com.andino.pablo.burbugebra.elementos.Ecuacion;
+import ar.com.andino.pablo.burbugebra.elementos.Fraccion;
+
+public class OperacionesFracciones extends AppCompatActivity {
 
     Lienzo lienzo;
     private Paint mPaint;
+    Fraccion fraccionI, fraccionD;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +43,20 @@ public class PlayActivity extends AppCompatActivity {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
 
+        playMusic();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.stop();
+        Bubble.plumEffect.stop();
+    }
+
+    private void playMusic() {
+        mediaPlayer = MediaPlayer.create(this, R.raw.rebels_be);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
     }
 
     public class Lienzo extends View {
@@ -45,17 +70,21 @@ public class PlayActivity extends AppCompatActivity {
         Context context;
         private Paint circlePaint;
         private Path circlePath;
+        private Bitmap logo;
 
         private float mX, mY;
-        private static final float TOUCH_TOLERANCE = 64;
+        private static final float TOUCH_TOLERANCE = 4;
 
         Ecuacion ecuacion;
+
+        List<Bubble> bubbles;
 
         public Lienzo(Context context) {
             super(context);
             this.context = context;
             mPath = new Path();
-            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vintage_paper_by_darkwood67);
+            logo = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
             circlePaint = new Paint();
             circlePath = new Path();
             circlePaint.setAntiAlias(true);
@@ -63,21 +92,49 @@ public class PlayActivity extends AppCompatActivity {
             circlePaint.setStyle(Paint.Style.STROKE);
             circlePaint.setStrokeJoin(Paint.Join.MITER);
             circlePaint.setStrokeWidth(4f);
+
+            bubbles = new ArrayList<>();
+
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mBitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
+
+            float logoX = logo.getWidth();
+            float logoY = logo.getHeight();
+
+            float zoomX = logoX / w;
+            float zoomY = logoY / h;
+
+            if (Math.abs(zoomX) < Math.abs(zoomY)){
+                logo = Bitmap.createScaledBitmap(logo, (int) Math.abs(logoX * zoomX), (int) Math.abs(logoY * zoomX), true);
+            } else {
+                logo = Bitmap.createScaledBitmap(logo, (int) Math.abs(logoX * zoomY), (int) Math.abs(logoY * zoomY), true);
+
+            }
+
+
             mCanvas = new Canvas(mBitmap);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
-            canvas.drawPath( mPath,  mPaint);
-            canvas.drawPath( circlePath,  circlePaint);
+            canvas.drawBitmap( mBitmap, 0, 0, null);
+            canvas.drawBitmap(logo, canvas.getWidth()/2-logo.getWidth()/2, canvas.getHeight()/2-logo.getHeight()/2, null);
+            // canvas.drawPath( mPath,  mPaint);
+            // canvas.drawPath( circlePath,  circlePaint);
+            drawBubbles(canvas);
+        }
+
+        private void drawBubbles(Canvas canvas){
+
+            for (Bubble bubble : bubbles)
+                bubble.onDraw(canvas);
+
         }
 
         @Override
@@ -106,6 +163,12 @@ public class PlayActivity extends AppCompatActivity {
         }
 
         private void touch_start(float x, float y) {
+
+            for (Bubble bubble : bubbles)
+                bubble.onScreenPressed(x, y);
+
+            bubbles.add(new Bubble(getContext(), x, y));
+
             mPath.reset();
             mPath.moveTo(x, y);
             mX = x;
@@ -128,12 +191,15 @@ public class PlayActivity extends AppCompatActivity {
 
         private void touch_up() {
             mPath.lineTo(mX, mY);
+            mPath.reset();
             circlePath.reset();
             // commit the path to our offscreen
             mCanvas.drawPath(mPath,  mPaint);
             // kill this so we don't double draw
             mPath.reset();
+
         }
 
     }
+
 }

@@ -1,9 +1,6 @@
-package ar.com.andino.pablo.burbugebra.Elementos;
+package ar.com.andino.pablo.burbugebra.elementos;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import ar.com.andino.pablo.burbugebra.numeros.Fraccion;
 
 public class Termino {
 
@@ -12,7 +9,7 @@ public class Termino {
 
     public Termino() {
         factores = new ArrayList<>();
-        factores.add(0, new Factor(new Fraccion(0, null)));
+        factores.add(0, new Factor(1));
     }
 
     public void agregarFactor(Factor factor, int posicion){

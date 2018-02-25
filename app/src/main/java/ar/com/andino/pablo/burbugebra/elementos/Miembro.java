@@ -1,9 +1,8 @@
-package ar.com.andino.pablo.burbugebra.Elementos;
+package ar.com.andino.pablo.burbugebra.elementos;
 
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Miembro {

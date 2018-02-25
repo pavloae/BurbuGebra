@@ -1,4 +1,4 @@
-package ar.com.andino.pablo.burbugebra.Elementos;
+package ar.com.andino.pablo.burbugebra.elementos;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

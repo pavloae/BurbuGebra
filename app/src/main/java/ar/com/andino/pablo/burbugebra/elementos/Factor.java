@@ -1,8 +1,6 @@
-package ar.com.andino.pablo.burbugebra.Elementos;
+package ar.com.andino.pablo.burbugebra.elementos;
 
 import java.util.ArrayList;
-
-import ar.com.andino.pablo.burbugebra.numeros.Fraccion;
 
 public class Factor {
 
@@ -11,7 +9,7 @@ public class Factor {
     Character variable;
 
     public Factor(int entero){
-        fraccion = new Fraccion(entero, null);
+        fraccion = new Fraccion();
     }
 
     public Factor(Fraccion fraccion){
