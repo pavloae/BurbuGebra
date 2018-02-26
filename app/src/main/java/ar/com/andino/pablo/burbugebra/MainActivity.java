@@ -1,91 +1,189 @@
 package ar.com.andino.pablo.burbugebra;
 
-import android.content.Intent;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.media.MediaPlayer;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-import ar.com.andino.pablo.burbugebra.numeros.Fraccion;
+import ar.com.andino.pablo.burbugebra.elementos.Bubble;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText numerador, denominador;
-    TextView resultado;
+    Lienzo lienzo;
+
+    MediaPlayer mediaPlayer;
+    CountDownTimer countDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        Button button = findViewById(R.id.button);
-        Button button1 = findViewById(R.id.button2);
+        lienzo = new Lienzo(this);
+        lienzo.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
-        numerador = findViewById(R.id.editText1);
-        denominador = findViewById(R.id.editText2);
+        setContentView(lienzo);
 
-        resultado = findViewById(R.id.textView);
+        playMusic();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                int num = Integer.valueOf(numerador.getText().toString());
-                int den = Integer.valueOf(denominador.getText().toString());
-
-                Fraccion fraccion = new Fraccion(num, den);
-
-                fraccion.simplificar();
-
-                resultado.setText(fraccion.numerador() + " / " + fraccion.denominador());
-
-                numerador.setText(factToString(getFactors(num)));
-                denominador.setText(factToString(getFactors(den)));
-
-            }
-        });
-
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, OperacionesFracciones.class);
-                startActivity(intent);
-            }
-        });
 
     }
 
-    public HashMap<Integer, Integer> getFactors(int value) {
-        HashMap<Integer, Integer> factors = new HashMap<>();
-
-        int partial = value;
-        for (int i = 2 ; i < value ; i++) {
-            factors.put(i, 0);
-            while (partial % i == 0){
-                partial = partial / i;
-                factors.put(i, factors.get(i)+1);
-            }
-
-        }
-
-        return factors;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null)
+            mediaPlayer.stop();
+        if (Bubble.plumEffect != null)
+            Bubble.plumEffect.stop();
     }
 
-    public String factToString(HashMap<Integer, Integer> factors) {
+    private void playMusic() {
+        mediaPlayer = MediaPlayer.create(this, R.raw.on_my_way);
 
-        String values = "1";
+        countDownTimer = new CountDownTimer(70000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mediaPlayer.start();
+            }
 
-        for (Integer primo : factors.keySet()){
-            if (factors.get(primo) > 0)
-                values = values + " x " + primo + "^" + factors.get(primo);
+            @Override
+            public void onFinish() {
+                mediaPlayer.stop();
+                mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.acid_bubble);
+                mediaPlayer.start();
+            }
+        };
+
+        //mediaPlayer.setLooping(true);
+        //mediaPlayer.start();
+
+        countDownTimer.start();
+
+    }
+
+    public class Lienzo extends View {
+
+        Context context;
+
+        private Bitmap backGround;
+        private Bitmap logo;
+
+        private Canvas mCanvas;
+        List<Bubble> bubbles;
+        Bubble bubbleOptions;
+
+        public Lienzo(Context context) {
+            super(context);
+            this.context = context;
+            backGround = BitmapFactory.decodeResource(getResources(), R.drawable.oceano_fondo_animado);
+            logo = BitmapFactory.decodeResource(getResources(), R.drawable.nombre_logo_1);
         }
 
-        return values;
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            backGround = Bitmap.createScaledBitmap(backGround, w, h, true);
+
+            int logoW = w * 75 / 100;
+            int logoH = logo.getHeight() * logoW / logo.getWidth();
+
+            logo = Bitmap.createScaledBitmap(logo, logoW, logoH, true);
+
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            canvas.drawBitmap(backGround, 0, 0, null);
+
+            canvas.drawBitmap(
+                    logo,
+                    canvas.getWidth() / 2 - logo.getWidth() / 2,
+                    canvas.getHeight() * 85 / 100 - logo.getHeight() / 2,
+                    null
+            );
+
+            float bubbleX = canvas.getWidth() / 2;
+            float bubbleY = canvas.getHeight() * 85 / 100;
+
+            float radioBubble = logo.getHeight() / 2;
+
+            if (bubbleOptions == null)
+                bubbleOptions = new Bubble(context, bubbleX, bubbleY, radioBubble);
+
+            if (bubbles == null) {
+
+                //radioBubble = 200;
+
+                bubbles = new ArrayList<>();
+                float bubblesY = canvas.getHeight() * 85 / 100 - logo.getHeight();
+                bubbles.add(new Bubble(context, canvas.getWidth() * 0.2f , bubblesY, radioBubble));
+                bubbles.add(new Bubble(context, canvas.getWidth() * 0.4f , bubblesY, radioBubble));
+                bubbles.add(new Bubble(context, canvas.getWidth() * 0.6f , bubblesY, radioBubble));
+                bubbles.add(new Bubble(context, canvas.getWidth() * 0.8f , bubblesY, radioBubble));
+            }
+
+            if (bubbleOptions.selected)
+                drawBubbles(canvas);
+
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+
+            performClick();
+
+            float x = event.getX();
+            float y = event.getY();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
+            }
+            return true;
+        }
+
+        private void drawBubbles(Canvas canvas) {
+
+            for (Bubble bubble: bubbles)
+                bubble.onDraw(canvas);
+
+        }
+
+        private void touch_start(float x, float y) {
+
+            bubbleOptions.onScreenPressed(x, y);
+            bubbleOptions.selected = true;
+
+        }
+
+        private void touch_move(float x, float y) {
+
+        }
+
+        private void touch_up() {
+
+        }
+
     }
 
 }

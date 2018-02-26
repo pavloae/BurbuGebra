@@ -18,13 +18,13 @@ public class Bubble {
 
     private float centerX, centerY;
     private float radius;
-    private boolean selected;
+    public boolean selected;
     private Bitmap bitmap;
 
-    public Bubble(Context context, float x, float y) {
-        radius = 60 + new Random().nextFloat() * 300;
-        centerX = (int) x;
-        centerY = (int) y;
+    public Bubble(Context context, float x, float y, float radius) {
+        centerX = x;
+        centerY = y;
+        this.radius = radius;
         if (bitmapActive == null)
             bitmapActive = BitmapFactory.decodeResource(context.getResources(), R.drawable.bubble_black);
         if (bitmapPasive == null)
@@ -35,6 +35,10 @@ public class Bubble {
 
         plumEffect.start();
 
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
     }
 
     public void onScreenPressed(float xCoor, float yCoor) {

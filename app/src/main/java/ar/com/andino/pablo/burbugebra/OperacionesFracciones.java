@@ -7,8 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,6 +31,7 @@ public class OperacionesFracciones extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         lienzo = new Lienzo(this);
+        lienzo.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         setContentView(lienzo);
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
@@ -50,48 +49,32 @@ public class OperacionesFracciones extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mediaPlayer.stop();
-        Bubble.plumEffect.stop();
+        if (Bubble.plumEffect != null)
+            Bubble.plumEffect.stop();
     }
 
     private void playMusic() {
         mediaPlayer = MediaPlayer.create(this, R.raw.rebels_be);
         mediaPlayer.setLooping(true);
-        mediaPlayer.start();
+        //mediaPlayer.start();
     }
 
     public class Lienzo extends View {
 
         public int width;
         public  int height;
-        private Bitmap mBitmap;
+        private Bitmap backGroundBitMap;
         private Canvas mCanvas;
-        private Path mPath;
-        private Paint mBitmapPaint;
         Context context;
-        private Paint circlePaint;
-        private Path circlePath;
         private Bitmap logo;
-
-        private float mX, mY;
-        private static final float TOUCH_TOLERANCE = 4;
-
-        Ecuacion ecuacion;
 
         List<Bubble> bubbles;
 
         public Lienzo(Context context) {
             super(context);
             this.context = context;
-            mPath = new Path();
-            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.vintage_paper_by_darkwood67);
-            logo = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
-            circlePaint = new Paint();
-            circlePath = new Path();
-            circlePaint.setAntiAlias(true);
-            circlePaint.setColor(Color.BLUE);
-            circlePaint.setStyle(Paint.Style.STROKE);
-            circlePaint.setStrokeJoin(Paint.Join.MITER);
-            circlePaint.setStrokeWidth(4f);
+            backGroundBitMap = BitmapFactory.decodeResource(getResources(), R.drawable.oceano_fondo_animado);
+            logo = BitmapFactory.decodeResource(getResources(), R.drawable.nombre_logo_1);
 
             bubbles = new ArrayList<>();
 
@@ -100,8 +83,7 @@ public class OperacionesFracciones extends AppCompatActivity {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-            mBitmap = Bitmap.createScaledBitmap(mBitmap, w, h, true);
+            backGroundBitMap = Bitmap.createScaledBitmap(backGroundBitMap, w, h, true);
 
             float logoX = logo.getWidth();
             float logoY = logo.getHeight();
@@ -116,17 +98,14 @@ public class OperacionesFracciones extends AppCompatActivity {
 
             }
 
-
-            mCanvas = new Canvas(mBitmap);
+            mCanvas = new Canvas(backGroundBitMap);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
-            canvas.drawBitmap( mBitmap, 0, 0, null);
-            canvas.drawBitmap(logo, canvas.getWidth()/2-logo.getWidth()/2, canvas.getHeight()/2-logo.getHeight()/2, null);
-            // canvas.drawPath( mPath,  mPaint);
-            // canvas.drawPath( circlePath,  circlePaint);
+            canvas.drawBitmap(backGroundBitMap, 0, 0, null);
+            canvas.drawBitmap(logo, canvas.getWidth()/2-logo.getWidth()/2, canvas.getHeight()/2-logo.getHeight()/2+100, null);
             drawBubbles(canvas);
         }
 
@@ -167,36 +146,15 @@ public class OperacionesFracciones extends AppCompatActivity {
             for (Bubble bubble : bubbles)
                 bubble.onScreenPressed(x, y);
 
-            bubbles.add(new Bubble(getContext(), x, y));
+            //bubbles.add(new Bubble(getContext(), x, y));
 
-            mPath.reset();
-            mPath.moveTo(x, y);
-            mX = x;
-            mY = y;
         }
 
         private void touch_move(float x, float y) {
-            float dx = Math.abs(x - mX);
-            float dy = Math.abs(y - mY);
-            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-                mPath.lineTo((x + mX)/2, (y + mY)/2);
-                //mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
-                mX = x;
-                mY = y;
 
-                circlePath.reset();
-                circlePath.addCircle(mX, mY, 30, Path.Direction.CW);
-            }
         }
 
         private void touch_up() {
-            mPath.lineTo(mX, mY);
-            mPath.reset();
-            circlePath.reset();
-            // commit the path to our offscreen
-            mCanvas.drawPath(mPath,  mPaint);
-            // kill this so we don't double draw
-            mPath.reset();
 
         }
 
