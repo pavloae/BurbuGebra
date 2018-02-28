@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.com.andino.pablo.burbugebra.elementos.Bubble;
-import ar.com.andino.pablo.burbugebra.elementos.Ecuacion;
 import ar.com.andino.pablo.burbugebra.elementos.Fraccion;
 
 public class OperacionesFracciones extends AppCompatActivity {
@@ -49,8 +47,6 @@ public class OperacionesFracciones extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mediaPlayer.stop();
-        if (Bubble.plumEffect != null)
-            Bubble.plumEffect.stop();
     }
 
     private void playMusic() {
@@ -146,7 +142,7 @@ public class OperacionesFracciones extends AppCompatActivity {
             for (Bubble bubble : bubbles)
                 bubble.onScreenPressed(x, y);
 
-            //bubbles.add(new Bubble(getContext(), x, y));
+            //bubblesOptions.add(new Bubble(getContext(), x, y));
 
         }
 
