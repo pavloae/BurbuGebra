@@ -5,23 +5,20 @@ import android.support.annotation.Nullable;
 public final class Fraccion {
 
     private Entero numerador;
-    private Entero denominador = new Entero(1);
+    private Entero denominador;
 
 
     public Fraccion(int numerador, @Nullable Integer denominador) throws RuntimeException {
         if (denominador != null && denominador == 0)
             throw new RuntimeException("División por cero");
-        if (denominador != null)
-            this.denominador = new Entero(denominador);
-        this.numerador = new Entero(numerador);
     }
 
     public int numerador(){
-        return numerador.obtenerValor();
+        return numerador.getValor();
     }
 
     public int denominador(){
-        return denominador.obtenerValor();
+        return denominador.getValor();
     }
 
     public void simplificar(){

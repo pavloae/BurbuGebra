@@ -4,16 +4,21 @@ import android.annotation.SuppressLint;
 
 import java.util.HashMap;
 
-public class Entero {
 
-    private int valor;
+public abstract class Entero implements InterfazEntero {
+
+    private int valor = 1;
 
     public Entero(int valor) {
         this.valor = valor;
     }
 
-    public int obtenerValor(){
+    public int getValor() {
         return valor;
+    }
+
+    public void setValor(int valor) {
+        this.valor = valor;
     }
 
     public int dividirPor(int divisor) {

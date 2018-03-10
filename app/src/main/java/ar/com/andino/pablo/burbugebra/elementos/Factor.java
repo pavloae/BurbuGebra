@@ -5,15 +5,14 @@ import java.util.ArrayList;
 public class Factor {
 
     ArrayList<Termino> terminos;
-    Fraccion fraccion;
+    BurbujaFraccion burbujaFraccion;
     Character variable;
 
     public Factor(int entero){
-        fraccion = new Fraccion();
     }
 
-    public Factor(Fraccion fraccion){
-        this.fraccion = fraccion;
+    public Factor(BurbujaFraccion burbujaFraccion){
+        this.burbujaFraccion = burbujaFraccion;
     }
 
     public Factor(Character variable){

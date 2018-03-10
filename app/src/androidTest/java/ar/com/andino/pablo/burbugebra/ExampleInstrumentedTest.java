@@ -1,11 +1,16 @@
 package ar.com.andino.pablo.burbugebra;
 
 import android.content.Context;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.junit.Assert.*;
 
@@ -22,5 +27,53 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("ar.com.andino.pablo.burbugebra", appContext.getPackageName());
+    }
+
+    @Test
+    public void countDown() throws Exception {
+        Contador counter = new Contador(10000,1000);
+        counter.start();
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+
+
+
+            }
+
+
+        };
+
+
+
+    }
+
+
+    public void fin(){
+        System.out.println("FIN");
+    }
+
+
+    public void hola(){
+        System.out.println("Hola");
+    }
+
+    public class Contador extends CountDownTimer {
+
+        public Contador(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onFinish() {
+            fin();
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            hola();
+        }
+
     }
 }

@@ -1,33 +1,33 @@
 package ar.com.andino.pablo.burbugebra;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.media.MediaPlayer;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import ar.com.andino.pablo.burbugebra.elementos.Bubble;
-import ar.com.andino.pablo.burbugebra.elementos.BubbleMotion;
+import ar.com.andino.pablo.burbugebra.activities.ActivityEcuaciones;
+import ar.com.andino.pablo.burbugebra.activities.ActivityFracciones;
+import ar.com.andino.pablo.burbugebra.activities.ActivitySistemas;
+import ar.com.andino.pablo.burbugebra.elementos.Burbuja;
+import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public class MainActivity extends AppCompatActivity {
 
-    Lienzo lienzo;
-    boolean run = false;
+    static SpritesBubble spritesBubbleUnderWater, spritesBubbleDisappear;
 
-    MediaPlayer mediaPlayer;
+    IntroSurfaceView introSurfaceView;
+    EquipoMusica equipoMusica;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,136 +37,237 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.opening);
+        initSprites();
 
-        lienzo = new Lienzo(this);
-        setContentView(lienzo);
-
-        lienzo.startLogic();
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-            }
-        });
+        equipoMusica = EquipoMusica.getInstance();
+        introSurfaceView = new IntroSurfaceView(this, null);
+        setContentView(introSurfaceView);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        playMusic();
-        run = true;
+        introSurfaceView.startDrawThread();
+        equipoMusica.cargarMusica(this, R.raw.opening);
+        equipoMusica.cargarEfecto(this, R.raw.pop1);
+        equipoMusica.reproducirMusica();
     }
 
     @Override
     protected void onPause() {
+        introSurfaceView.stopDrawThread();
+        equipoMusica.pausarMusica();
         super.onPause();
-        if (mediaPlayer != null)
-            mediaPlayer.stop();
-        run = false;
-        lienzo.setActive(false);
     }
 
-    private void playMusic() {
-        mediaPlayer.setVolume(0.35f, 0.35f);
-        mediaPlayer.start();
+    private void initSprites(){
+/*
+        if (spritesBubbleUnderWater == null)
+            spritesBubbleUnderWater = new SpritesBubble(
+                    BitmapFactory.decodeResource(
+                            getResources(),
+                            R.drawable.bubble_sprites_underwater
+                    ),
+                    8,
+                    false
+            );
+*/
+
+        if (spritesBubbleDisappear == null)
+            spritesBubbleDisappear = new SpritesBubble(
+                    BitmapFactory.decodeResource(
+                            getResources(),
+                            R.drawable.bubble_sprites_disappear
+                    ),
+                    7,
+                    false,
+                    0.5f,
+                    0.5f,
+                    1.0f
+            );
+
     }
 
-    public class Lienzo extends View {
+    public class IntroSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable, View.OnTouchListener {
 
-        Context context;
-        private Bitmap backGround, logo;
-        private boolean active;
-        private float t;  // tiempo de la animación en segundos
+        private SurfaceHolder surfaceHolder;
+        private Thread drawThread;
 
-        // Parámetros de la pantalla
-        private final int HEIGHT;
-        private final int WIDHT;
+        private boolean surfaceReady = false;
+        private boolean drawingActive = false;
 
-        private float velocidad;        // Velocidad de ascención
-        BubbleMotion[] bubblesOptions;
-        BubbleMotion[] bubbleMotionList;
+        Bitmap background, logo;
+        int logoX, logoY;
 
-        public Lienzo(Context context) {
-            super(context);
-            this.context = context;
-            backGround = BitmapFactory.decodeResource(getResources(), R.drawable.oceano_fondo_animado);
+        private static final int MAX_FRAME_TIME = (int) (1000.0 / 25.0);
+        private float velocidad;
+
+        Burbuja[] burbujasOpciones;
+
+        public IntroSurfaceView(Context context, AttributeSet attributeSet) {
+            super(context, attributeSet);
+            SurfaceHolder surfaceHolder = getHolder();
+            surfaceHolder.addCallback(this);
+            setOnTouchListener(this);
+
+            background = BitmapFactory.decodeResource(context.getResources(), R.drawable.background_intro);
             logo = BitmapFactory.decodeResource(getResources(), R.drawable.nombre_logo_1);
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            HEIGHT = displayMetrics.heightPixels;
-            WIDHT = displayMetrics.widthPixels;
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            backGround = Bitmap.createScaledBitmap(backGround, w, h, true);
-
-            int logoW = w * 70 / 100;
-            int logoH = logo.getHeight() * logoW / logo.getWidth();
-            logo = Bitmap.createScaledBitmap(logo, logoW, logoH, true);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            canvas.drawBitmap(backGround, 0, 0, null);
-
-            if (bubblesOptions == null)
-                initBubblesOptions();
-
-            if (bubbleMotionList == null)
-                initBubblesG(23);
-
-            canvas.drawBitmap(logo, backGround.getWidth() / 2 - logo.getWidth() / 2, backGround.getHeight() - backGround.getWidth() * 15 / 100 - logo.getHeight(),null);
-
-            drawBubbles(canvas);
 
         }
 
-        public void initBubblesOptions() {
+        public void startDrawThread() {
+            if (surfaceReady && drawThread == null) {
+                drawThread = new Thread(this, "Draw thread");
+                drawingActive = true;
+                drawThread.start();
+            }
+        }
 
-            final float radioBubble = 0.1f * WIDHT;
+        public void stopDrawThread() {
 
-            final float T = 1f;   // Periodo en segundos
-            final float A = radioBubble / 4f;
-            final float yf = (float) (0.7 * HEIGHT);
-            final float k = (float) (2 * Math.PI / WIDHT);
+            if (drawThread == null)
+                return;
+
+            drawingActive = false;
+            while (true) {
+                try {
+                    drawThread.join(5000);
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            drawThread = null;
+        }
+
+        public void doDraw(Canvas canvas) {
+            canvas.drawBitmap(background, 0, 0, null);
+            canvas.drawBitmap(logo, logoX, logoY,null);
+            if (burbujasOpciones != null)
+                for (Burbuja burbuja : burbujasOpciones){
+                    if (burbuja == null)
+                        continue;
+                    burbuja.updateBubblePosition();
+                    burbuja.onDraw(canvas);
+                }
+        }
+
+        public void initBurbujasOpciones() {
+
+            final float radioBubble = 0.1f * getWidth();
+            final float T = 1000f;
+            final float A = radioBubble / 5f;
+            final float yf = (float) (0.7 * getHeight());
+            final float k = (float) (2 * Math.PI / getWidth());
             final float w = (float) (2 * Math.PI / T);
             velocidad = (float) (2 * Math.PI * A / T);
 
-            bubblesOptions = new BubbleMotion[4];
+            burbujasOpciones = new Burbuja[4];
 
-            bubblesOptions[0] = new BubbleMotion(MainActivity.this) {
+            burbujasOpciones[0] = new Burbuja(spritesBubbleDisappear) {
 
                 boolean cycle = false;
                 float fase;
-                final float y0 = HEIGHT;
+                final float x0 = 0.125f * getWidth();
+                final float y0 = getHeight();
+                long t0, t, t0Animated, tAnimated;
 
                 @Override
-                public float[] getOriginXY() {
-                    return new float[]{
-                            0.125f * WIDHT,
-                            HEIGHT
-                    };
-                }
-
-                @Override
-                public float getRadius() {
+                public float getBubbleRadius() {
                     return radioBubble;
                 }
 
                 @Override
-                public void onUpdatePosition() {
+                public SpritesBubble getSpritesBubbles() {
+                    return spritesBubbleDisappear;
+                }
+
+                @Override
+                public void updateBubblePosition() {
+
+                    if (t0 <= 0)
+                        t0 = System.currentTimeMillis();
+
+                    t = System.currentTimeMillis() - t0;
 
                     if (cycle) {
                         setCenterY((float) (yf - A * Math.sin(w * t - k * fase)));
                         return;
                     }
 
+                    setCenterX(x0);
+                    setCenterY(y0 - t * velocidad);
+
+                    if (getCenterY() <= yf) {
+                        fase = (w * t) / k;
+                        cycle = true;
+                    }
+                }
+
+                @Override
+                public void onPressed() {
+                    super.onPressed();
+                    onPlop();
+                    startActivity(
+                            new Intent(
+                                    MainActivity.this,
+                                    ActivityFracciones.class
+                            )
+                    );
+                }
+
+                @Override
+                public void onPlop() {
+                    super.onPlop();
+                    equipoMusica.reproducirEfecto(0);
+                    t0Animated = System.currentTimeMillis();
+                }
+            };
+
+            burbujasOpciones[1] = new Burbuja(spritesBubbleDisappear) {
+
+
+                boolean cycle = false;
+                float fase;
+                final float x0 = 0.375f * getWidth();
+                final float y0 = (float) (getHeight() + 0.25 * T * velocidad);
+                final long tfAnimated = 1200;
+                int frameAnimated;
+                long t0, t, t0Animated, tAnimated;
+
+                @Override
+                public float getBubbleRadius() {
+                    return radioBubble;
+                }
+
+                @Override
+                public SpritesBubble getSpritesBubbles() {
+                    return null;
+                }
+
+                @Override
+                public void updateBubblePosition() {
+
+                    if (t0Animated > 0 && tAnimated <= tfAnimated) {
+                        tAnimated = System.currentTimeMillis() - t0Animated;
+
+                        frameAnimated++;
+
+
+                    }
+
+                    if (t0 <= 0)
+                        t0 = System.currentTimeMillis();
+
+                    t = System.currentTimeMillis() - t0;
+
+                    if (cycle) {
+                        setCenterY((float) (yf - A * Math.sin(w * t - k * fase)));
+                        return;
+                    }
+
+                    setCenterX(x0);
                     setCenterY(y0 - t * velocidad);
 
                     if (getCenterY() <= yf) {
@@ -177,39 +278,59 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void bitmapToBubble(@Nullable Bitmap bitmap) {
-                    super.bitmapToBubble(BitmapFactory.decodeResource(getResources(), R.drawable.operaciones));
+                public void onPressed() {
+                    super.onPressed();
+                    onPlop();
+                    /*
+                    startActivity(
+                            new Intent(
+                                    MainActivity.this,
+                                    ActivityOperaciones.class
+                            )
+                    );
+                    */
+                }
+
+                @Override
+                public void onPlop() {
+                    equipoMusica.reproducirEfecto(0);
+                    t0Animated = System.currentTimeMillis();
                 }
 
             };
 
-            bubblesOptions[1] = new BubbleMotion(MainActivity.this) {
+            burbujasOpciones[2] = new Burbuja(spritesBubbleDisappear) {
 
                 boolean cycle = false;
                 float fase;
-                final float y0 = (float) (HEIGHT + 0.25 * T * velocidad);
+                final float x0 = 0.625f * getWidth();
+                final float y0 = (float) (getHeight() + 0.5 * T * velocidad);
+                long t0, t, t0Animated, tAnimated;
 
                 @Override
-                public float[] getOriginXY() {
-                    return new float[]{
-                            0.375f * WIDHT,
-                            HEIGHT
-                    };
-                }
-
-                @Override
-                public float getRadius() {
+                public float getBubbleRadius() {
                     return radioBubble;
                 }
 
                 @Override
-                public void onUpdatePosition() {
+                public SpritesBubble getSpritesBubbles() {
+                    return null;
+                }
+
+                @Override
+                public void updateBubblePosition() {
+
+                    if (t0 <= 0)
+                        t0 = System.currentTimeMillis();
+
+                    t = System.currentTimeMillis() - t0;
 
                     if (cycle) {
                         setCenterY((float) (yf - A * Math.sin(w * t - k * fase)));
                         return;
                     }
 
+                    setCenterX(x0);
                     setCenterY(y0 - t * velocidad);
 
                     if (getCenterY() <= yf) {
@@ -218,36 +339,58 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-
-
-            };
-
-            bubblesOptions[2] = new BubbleMotion(MainActivity.this) {
-
-                boolean cycle = false;
-                float fase;
-                final float y0 = (float) (HEIGHT + 0.5 * T * velocidad);
-
                 @Override
-                public float[] getOriginXY() {
-                    return new float[]{
-                            0.625f * WIDHT,
-                            HEIGHT
-                    };
+                public void onPressed() {
+                    super.onPressed();
+                    onPlop();
+                    startActivity(
+                            new Intent(
+                                    MainActivity.this,
+                                    ActivityEcuaciones.class
+                            )
+                    );
                 }
 
                 @Override
-                public float getRadius() {
+                public void onPlop() {
+                    equipoMusica.reproducirEfecto(0);
+                    t0Animated = System.currentTimeMillis();
+                }
+
+            };
+
+            burbujasOpciones[3] = new Burbuja(spritesBubbleDisappear) {
+
+                boolean cycle = false;
+                float fase;
+                final float x0 = 0.875f * getWidth();
+                final float y0 = (float) (getHeight() + 0.75 * T * velocidad);
+                long t0, t, t0Animated, tAnimated;
+
+                @Override
+                public float getBubbleRadius() {
                     return radioBubble;
                 }
 
                 @Override
-                public void onUpdatePosition() {
+                public SpritesBubble getSpritesBubbles() {
+                    return null;
+                }
+
+                @Override
+                public void updateBubblePosition() {
+
+                    if (t0 <= 0)
+                        t0 = System.currentTimeMillis();
+
+                    t = System.currentTimeMillis() - t0;
+
                     if (cycle) {
                         setCenterY((float) (yf - A * Math.sin(w * t - k * fase)));
                         return;
                     }
 
+                    setCenterX(x0);
                     setCenterY(y0 - t * velocidad);
 
                     if (getCenterY() <= yf) {
@@ -256,216 +399,122 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-            };
-
-            bubblesOptions[3] = new BubbleMotion(MainActivity.this) {
-
-                boolean cycle = false;
-                float fase;
-                final float y0 = (float) (HEIGHT + 0.75 * T * velocidad);
-
                 @Override
-                public float[] getOriginXY() {
-                    return new float[]{
-                            0.875f * WIDHT,
-                            HEIGHT
-                    };
+                public void onPressed() {
+                    super.onPressed();
+                    onPlop();
+                    startActivity(
+                            new Intent(
+                                    MainActivity.this,
+                                    ActivitySistemas.class
+                            )
+                    );
                 }
 
                 @Override
-                public float getRadius() {
-                    return radioBubble;
-                }
-
-                @Override
-                public void onUpdatePosition() {
-                    if (cycle) {
-                        setCenterY((float) (yf - A * Math.sin(w * t - k * fase)));
-                        return;
-                    }
-
-                    setCenterY(y0 - t * velocidad);
-
-                    if (getCenterY() <= yf) {
-                        fase = (w * t) / k;
-                        cycle = true;
-                    }
-
+                public void onPlop() {
+                    equipoMusica.reproducirEfecto(0);
+                    t0Animated = System.currentTimeMillis();
                 }
             };
 
+            burbujasOpciones[0].setFillingBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.intro_fracciones), true);
+            burbujasOpciones[1].setFillingBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.intro_operaciones), true);
+            burbujasOpciones[2].setFillingBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.intro_ecuaciones), true);
+            burbujasOpciones[3].setFillingBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.intro_sistemas), true);
 
         }
 
-        public void initBubblesG(int bubbles) {
+        @Override
+        public void surfaceCreated(SurfaceHolder surfaceHolder) {
+            this.surfaceHolder = surfaceHolder;
 
-            Log.v("INIT", "LANZANDO BURBUJJAS..." + bubbles);
+            // Si existe un hilo actualmente activo, lo desactivamos y esperamos hasta que se libere
+            if (drawThread != null) {
+                drawingActive = false;
+                try {
+                    drawThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
-            final float lineaExplosion = 0.2f * HEIGHT;
+            surfaceReady = true;
+            startDrawThread();
 
-            bubbleMotionList = new BubbleMotion[bubbles];
+        }
 
-            final float t0 = t;
+        @Override
+        public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int widht, int height) {
 
-            for (int i = 0; i < bubbles; i++){
+            if (widht == 0 || height == 0)
+                return;
 
-                final float y0 = HEIGHT + 1000f * new Random().nextFloat();
+            background = Bitmap.createScaledBitmap(background, widht, height,true);
 
-                final int finalI = i;
-                bubbleMotionList[i] = new BubbleMotion(MainActivity.this) {
+            float scale = widht * 0.7f / logo.getWidth();
+            logo = Bitmap.createScaledBitmap(logo, (int) (logo.getWidth() * scale), (int) (logo.getHeight() * scale),true);
+            logoX = (widht - logo.getWidth()) / 2;
+            logoY = height - logoX - logo.getHeight();
 
-                    @Override
-                    public float[] getOriginXY() {
-                        return new float[]{
-                                WIDHT * new Random().nextFloat(),
-                                y0
-                        };
-                    }
+            initBurbujasOpciones();
 
-                    @Override
-                    public float getRadius() {
-                        return 30f + 60f * new Random().nextFloat();
-                    }
+        }
 
-                    @Override
-                    public void onUpdatePosition() {
-                        setCenterY((float) (y0 - Math.pow((t - t0), 2) * velocidad / 4));
-                        if (getCenterY() < lineaExplosion){
-                            plump();
-                            bubbleMotionList[finalI] = null;
+        @Override
+        public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+            stopDrawThread();
+            surfaceHolder.getSurface().release();
+            this.surfaceHolder = null;
+            surfaceReady = false;
+        }
+
+        @Override
+        public void run() {
+
+            long frameStartTime;
+            long frameTime = 0;
+
+            try {
+                Canvas canvas;
+                while (drawingActive) {
+                    if (surfaceHolder == null)
+                        return;
+
+                    frameStartTime = System.currentTimeMillis();
+                    canvas = surfaceHolder.lockCanvas();
+                    if (canvas != null) {
+                        try {
+                            doDraw(canvas);
+                            frameTime = System.currentTimeMillis() - frameStartTime;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            surfaceHolder.unlockCanvasAndPost(canvas);
                         }
                     }
-                };
 
-
-            }
-        }
-
-        @Override
-        public boolean performClick() {
-            return super.performClick();
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-
-            performClick();
-
-            float x = event.getX();
-            float y = event.getY();
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    touch_start(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    touch_move(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    touch_up();
-                    invalidate();
-                    break;
-            }
-            return true;
-        }
-
-        public void update(int delta){
-
-            t += delta / 1000f;
-
-            float timeLaunch = 19f;
-
-            if (bubblesOptions != null)
-                for (BubbleMotion bubbleMotion : bubblesOptions)
-                    if (bubbleMotion != null)
-                        bubbleMotion.onUpdatePosition();
-
-            if (bubbleMotionList != null)
-                for (BubbleMotion bubbleMotion : bubbleMotionList)
-                    if (bubbleMotion != null)
-                        bubbleMotion.onUpdatePosition();
-
-            if (t > timeLaunch && t < timeLaunch + (delta / 1000f))
-                initBubblesG(12);
-
-        }
-
-        private void drawBubbles(Canvas canvas) {
-
-            for (BubbleMotion bubbleMotion : bubblesOptions) {
-                if (bubbleMotion != null)
-                    bubbleMotion.onDraw(canvas);
-            }
-
-            for (BubbleMotion bubbleMotion : bubbleMotionList) {
-                if (bubbleMotion != null)
-                    bubbleMotion.onDraw(canvas);
-            }
-
-
-
-        }
-
-        public void startLogic() {
-
-            active = true;
-
-            new Thread(new Runnable(){
-                @Override
-                public void run() {
-
-                    long time1 = System.currentTimeMillis();
-                    long time2;
-
-                    while(active){
+                    if (frameTime < MAX_FRAME_TIME) {
                         try {
-                            Thread.sleep(40);
+                            Thread.sleep(MAX_FRAME_TIME - frameTime);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
-                        time2 = System.currentTimeMillis(); // Get current time
-                        int delta = (int) (time2 - time1);
-
-                        lienzo.update(delta);
-
-                        time1 = time2;
-
-                        lienzo.postInvalidate();
                     }
 
-                }}).start();
-        }
-
-        public void setActive(boolean active) {
-            this.active = active;
-        }
-
-        private void touch_start(float x, float y) {
-
-            for (int i = 0; i < 4; i ++){
-
-                if (bubblesOptions[i] == null)
-                    return;
-
-                bubblesOptions[i].onScreenPressed(x, y);
-
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }
 
-        private void touch_move(float x, float y) {
-
-        }
-
-        private void touch_up() {
-
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            for (Burbuja burbuja : burbujasOpciones)
+                burbuja.onTouchScreen(motionEvent.getX(), motionEvent.getY());
+            return false;
         }
 
     }
-
-
 
 }

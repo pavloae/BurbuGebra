@@ -1,5 +1,7 @@
 package ar.com.andino.pablo.burbugebra;
 
+import android.os.CountDownTimer;
+
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -23,16 +25,21 @@ public class ExampleUnitTest {
     @Test
     public void dividirEntero() throws Exception {
 
-        Entero entero = new Entero(360);
+        Entero entero = new Entero(2) {
+            @Override
+            public int getValor() {
+                return super.getValor();
+            }
+        };
 
         assertTrue(entero.dividirPor(9) == 0);
-        assertTrue(entero.obtenerValor() == 40);
+        assertTrue(entero.getValor() == 40);
 
         assertTrue(entero.dividirPor(9) == 4);
-        assertTrue(entero.obtenerValor() == 4);
+        assertTrue(entero.getValor() == 4);
 
         assertTrue(entero.dividirPor(10) == 4);
-        assertTrue(entero.obtenerValor() == 0);
+        assertTrue(entero.getValor() == 0);
 
     }
 
@@ -62,14 +69,17 @@ public class ExampleUnitTest {
     @Test
     public void enteroFactores() throws Exception {
 
-        Entero entero = new Entero(360);
+        Entero entero = new Entero(360){
+        };
         HashMap<Integer, Integer> factores = Entero.factoresPrimos(360);
 
         for (int factor : factores.keySet()){
             System.out.println(factor +"^"+ factores.get(factor));
         }
 
-        entero = new Entero(8448);
+        entero = new Entero(8448){
+
+        };
         factores = Entero.factoresPrimos(8448);
 
         for (int factor : factores.keySet()){
@@ -80,5 +90,39 @@ public class ExampleUnitTest {
 
     }
 
+
+    @Test
+    public void countDown() throws Exception {
+        Contador counter = new Contador(10000,1000);
+        counter.start();
+    }
+
+
+    public void fin(){
+        System.out.println("FIN");
+    }
+
+
+    public void hola(){
+        System.out.println("Hola");
+    }
+
+    public class Contador extends CountDownTimer {
+
+        public Contador(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onFinish() {
+            fin();
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            hola();
+        }
+
+    }
 
 }
