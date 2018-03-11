@@ -4,6 +4,6 @@ import android.graphics.Bitmap;
 
 public interface SpritesInterface {
 
-    Bitmap getFrame(int position, float bubbleRadius);
+    int getSpritesNumber();
 
 }

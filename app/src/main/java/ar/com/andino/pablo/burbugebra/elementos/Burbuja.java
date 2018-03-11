@@ -1,6 +1,5 @@
 package ar.com.andino.pablo.burbugebra.elementos;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -11,72 +10,52 @@ import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public abstract class Burbuja implements InterfazBurbuja {
 
-    private float centerX, centerY, radius;
-    private float excX, excY;
+    private float centerX;
+    private float centerY;
+    private float radius;
+    private Bitmap bitmap;
 
-    private SpritesBubble spritesBubble;
-    private Bitmap currentFrame;
-    private int left, top;
-
-    private boolean pressed, bursted;
-
-    protected Burbuja(SpritesBubble spritesBubble){
-        this.spritesBubble = spritesBubble;
-        radius = getBubbleRadius();
+    protected Burbuja(){
+        super();
         centerX = getCenterX();
         centerY = getCenterY();
+        radius = getRadius();
+        bitmap = getBitmap();
     }
 
     @Override
-    public float getBubbleRadius() {
-        return 100;
-    }
-
-    public void setCurrentFrame() {
-        if (spritesBubble == null)
-            return;
-        currentFrame = spritesBubble.getFrame(0, radius);
-    }
-
-    protected float getCenterX() {
+    public float getCenterX() {
         return centerX;
     }
 
-    protected float getCenterY() {
+    @Override
+    public float getCenterY() {
         return centerY;
     }
 
-    protected void setCenterX(float centerX) {
-        this.centerX = centerX;
+    @Override
+    public float getRadius() {
+        return 100;
     }
 
-    protected void setCenterY(float centerY) {
-        this.centerY = centerY;
-    }
+    @NonNull
+    public abstract Bitmap getBitmap();
 
     @Override
     public void setBubbleRadius(float radius) {
         this.radius = radius;
         if (radius <= 0) {
-            this.currentFrame = null;
+            this.bitmap = null;
             return;
         }
 
-        if (currentFrame == null){
-            currentFrame = spritesBubble.getFrame(0, radius);
+        if (bitmap == null){
+            //bitmap = spritesBubble.getSpriteBubble(0, radius);
         }
 
-        currentFrame = Bitmap.createScaledBitmap(currentFrame, 2 * (int) radius, 2 * (int) radius, true);
+        bitmap = Bitmap.createScaledBitmap(bitmap, 2 * (int) radius, 2 * (int) radius, true);
     }
 
-    @Override
-    public void setSpritesBubble(@NonNull SpritesBubble bitmap) {
-        if (radius <= 0)
-            return;
-        currentFrame = spritesBubble.getFrame(0, radius);
-    }
-
-    @Override
     public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
 
         if (bitmap == null || radius <= 0)
@@ -105,57 +84,55 @@ public abstract class Burbuja implements InterfazBurbuja {
 
         }
 
-        if (currentFrame == null)
+        if (this.bitmap == null)
             return;
 
         Bitmap bmOverlay = Bitmap.createBitmap(
-                currentFrame.getWidth(), currentFrame.getHeight(), currentFrame.getConfig()
+                this.bitmap.getWidth(), this.bitmap.getHeight(), this.bitmap.getConfig()
         );
 
         Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(currentFrame, new Matrix(), null);
+        canvas.drawBitmap(this.bitmap, new Matrix(), null);
         canvas.drawBitmap(
                 bitmap,
-                (currentFrame.getWidth() - bitmap.getWidth()) / 2,
-                (currentFrame.getHeight() - bitmap.getHeight()) / 2 ,
+                (this.bitmap.getWidth() - bitmap.getWidth()) / 2,
+                (this.bitmap.getHeight() - bitmap.getHeight()) / 2 ,
                 null);
 
-        this.currentFrame = bmOverlay;
+        this.bitmap = bmOverlay;
 
     }
 
     @Override
-    public boolean onTouchScreen(float xCoor, float yCoor) {
-        double distancia = Math.sqrt(Math.pow(Math.abs(xCoor-centerX), 2)+Math.pow(Math.abs(yCoor-centerY), 2));
+    public boolean onTouchScreen(float screenX, float screenY) {
+        double distancia = Math.sqrt(Math.pow(Math.abs(screenX-centerX), 2)+Math.pow(Math.abs(screenY-centerY), 2));
         if (distancia <= radius) {
             onPressed();
             return true;
         }
-        pressed = false;
+        //pressed = false;
         return false;
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (currentFrame == null)
+        if (bitmap == null)
             return;
-        canvas.drawBitmap(currentFrame, centerX - radius, centerY - radius, null);
+        canvas.drawBitmap(bitmap, centerX - radius, centerY - radius, null);
     }
 
     @Override
     @CallSuper
     public void onPressed() {
-        pressed = true;
     }
 
     @Override
     public void onPlop(){
-        bursted = true;
-        setBubbleRadius(0);
-
     }
 
     public void updateBubblePosition(){
+        centerX = getCenterX();
+        centerY = getCenterY();
     }
 
 }

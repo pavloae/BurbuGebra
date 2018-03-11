@@ -2,6 +2,8 @@ package ar.com.andino.pablo.burbugebra.elementos;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import ar.com.andino.pablo.burbugebra.numeros.Entero;
@@ -14,7 +16,7 @@ public class BurbujaFraccion extends Burbuja {
     private BurbujaEntero denominador;
 
     public BurbujaFraccion(Context context, int numerador, @Nullable Integer denominador) throws RuntimeException {
-        super(null);
+        //super(null);
         if (denominador != null && denominador == 0)
             throw new RuntimeException("División por cero");
         this.numerador = BurbujaEntero.getInstance(context, numerador);
@@ -38,8 +40,9 @@ public class BurbujaFraccion extends Burbuja {
 
     }
 
+    @NonNull
     @Override
-    public SpritesBubble getSpritesBubbles() {
+    public Bitmap getBitmap() {
         return null;
     }
 

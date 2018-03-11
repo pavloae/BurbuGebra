@@ -39,27 +39,28 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
         return new BurbujaEntero(context, entero) {
 
             @Override
-            public float getBubbleRadius() {
+            public float getCenterX() {
                 return 0;
             }
 
             @Override
-            public SpritesBubble getSpritesBubbles() {
+            public float getCenterY() {
+                return 0;
+            }
+
+            @Override
+            public float getRadius() {
+                return 0;
+            }
+
+            @Override
+            public Bitmap getBitmap() {
                 return null;
             }
 
+
             @Override
             public void setBubbleRadius(float radius) {
-
-            }
-
-            @Override
-            public void setSpritesBubble(@NonNull SpritesBubble bitmap) {
-
-            }
-
-            @Override
-            public void setFillingBitmap(@NonNull Bitmap bitmap, boolean scaleToBubble) {
 
             }
 
@@ -182,14 +183,10 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
     }
 
     @Override
-    public float getBubbleRadius() {
+    public float getRadius() {
         return 0;
     }
 
-    @Override
-    public SpritesBubble getSpritesBubbles() {
-        return null;
-    }
 
     @Override
     public void setBubbleRadius(float radius) {

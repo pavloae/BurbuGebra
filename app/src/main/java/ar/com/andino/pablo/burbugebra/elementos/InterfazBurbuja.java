@@ -13,15 +13,15 @@ import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public interface InterfazBurbuja {
 
-    float getBubbleRadius();
+    float getCenterX();
 
-    SpritesBubble getSpritesBubbles();
+    float getCenterY();
+
+    float getRadius();
+
+    Bitmap getBitmap();
 
     void setBubbleRadius(float radius);
-
-    void setSpritesBubble(@NonNull SpritesBubble bitmap);
-
-    void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble);
 
     boolean onTouchScreen(float xCoor, float yCoor);
 

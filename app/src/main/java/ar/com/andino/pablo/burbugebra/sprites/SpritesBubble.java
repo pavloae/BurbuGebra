@@ -1,26 +1,36 @@
 package ar.com.andino.pablo.burbugebra.sprites;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 
 public class SpritesBubble implements SpritesInterface {
 
-    private Bitmap[] bitmapArray;
-    private boolean cyclic;
+    private Bitmap sprites;
+    private int numFrames;
+    private boolean loop;
+    public boolean dispose;
     private float relativeX, relativeY, relativeR;
+    private Rect sourceR;
+    private int spriteW, spriteH;
+    private int xPos;
+    private int yPos;
+    private int fps;
+    private long frameTimer;
+    private int currentFrame;
 
-    public SpritesBubble(Bitmap bitmap, int framesNumber, boolean cyclic, float relativeX, float relativeY, float relativeR) {
 
-        this.bitmapArray = new Bitmap[framesNumber];
-        this.cyclic = cyclic;
+    public SpritesBubble(
+            Bitmap sprites, int numFrames, boolean loop,
+            float relativeX, float relativeY, float relativeR
+    ) {
+
+        this.sprites = sprites;
+        this.numFrames = numFrames;
+        this.loop = loop;
         this.relativeX = relativeX;
         this.relativeY = relativeY;
         this.relativeR = relativeR;
-        int frameHeight = bitmap.getHeight();
-        int frameWidth = bitmap.getWidth() / framesNumber;
-
-        for (int frame = 0; frame < framesNumber; frame++){
-            bitmapArray[frame] = Bitmap.createBitmap(bitmap, frame * frameWidth, 0, frameWidth, frameHeight);
-        }
 
     }
 
@@ -36,30 +46,51 @@ public class SpritesBubble implements SpritesInterface {
         return relativeR;
     }
 
-    public boolean isCyclic() {
-        return cyclic;
+    public boolean isLoop() {
+        return loop;
+    }
+
+    public int getXPos() {
+        return xPos;
+    }
+
+    public int getYPos() {
+        return yPos;
+    }
+
+    public void setXPos(int value) {
+        xPos = value - (spriteW/2);
+    }
+
+    public void setYPos(int value) {
+        yPos = value - (spriteH/2);
     }
 
     @Override
-    public Bitmap getFrame(int position, float bubbleRadius) {
+    public int getSpritesNumber() {
+        return numFrames;
+    }
 
-        if (position < 0 || position >= bitmapArray.length)
-            return null;
+    public void update(long gameTime) {
+        if( gameTime > frameTimer + fps) {
+            frameTimer = gameTime;
+            currentFrame += 1;
 
-        Bitmap frame = bitmapArray[position];
-        if (frame == null)
-            return null;
+            if( currentFrame >= numFrames ) {
+                currentFrame = 0;
 
-        int frameR = Math.min(frame.getWidth(), frame.getHeight());
-        float scale = bubbleRadius / relativeR / frameR;
+                if(!loop) dispose = true;
+            }
 
-        return Bitmap.createScaledBitmap(
-                frame,
-                (int) (scale * frame.getWidth()),
-                (int) (scale * frame.getHeight()),
-                false
-        );
+            sourceR.left = currentFrame * spriteW;
+            sourceR.right = sourceR.left + spriteW;
+        }
+    }
 
+    public void draw(Canvas canvas) {
+        Rect destR = new Rect(getXPos(), getYPos(), getXPos() + spriteW,
+                getYPos() + spriteH);
+        canvas.drawBitmap(sprites, sourceR, destR, null);
     }
 
 }

@@ -214,15 +214,19 @@ public class Nivel0 extends Fragment {
 
             bubbleMotionList.add(new BurbujaEntero(context, entero) {
 
-
                 @Override
-                public void setSpritesBubble(@NonNull SpritesBubble bitmap) {
-
+                public float getCenterX() {
+                    return 0;
                 }
 
                 @Override
-                public void setFillingBitmap(@NonNull Bitmap bitmap, boolean scaleToBubble) {
+                public float getCenterY() {
+                    return 0;
+                }
 
+                @Override
+                public Bitmap getBitmap() {
+                    return null;
                 }
 
                 @Override
