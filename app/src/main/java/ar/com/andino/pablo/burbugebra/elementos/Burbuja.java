@@ -14,6 +14,7 @@ public abstract class Burbuja implements InterfazBurbuja {
     private float centerY;
     private float radius;
     private Bitmap bitmap;
+    public boolean isBursted;
 
     protected Burbuja(){
         super();
@@ -116,7 +117,7 @@ public abstract class Burbuja implements InterfazBurbuja {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (bitmap == null)
+        if (bitmap == null || isBursted)
             return;
         canvas.drawBitmap(bitmap, centerX - radius, centerY - radius, null);
     }
@@ -128,6 +129,7 @@ public abstract class Burbuja implements InterfazBurbuja {
 
     @Override
     public void onPlop(){
+        isBursted = true;
     }
 
     public void updateBubblePosition(){
