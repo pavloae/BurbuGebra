@@ -5,11 +5,13 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public abstract class Burbuja implements InterfazBurbuja {
 
+    private int left, top;
     private float centerX;
     private float centerY;
     private float radius;
@@ -17,11 +19,13 @@ public abstract class Burbuja implements InterfazBurbuja {
     public boolean isBursted;
 
     protected Burbuja(){
-        super();
-        centerX = getCenterX();
-        centerY = getCenterY();
-        radius = getRadius();
-        bitmap = getBitmap();
+    }
+
+    protected Burbuja(Bitmap bitmap, float centerX, float centerY, float radius){
+        this.bitmap = bitmap;
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
     }
 
     @Override
@@ -36,11 +40,22 @@ public abstract class Burbuja implements InterfazBurbuja {
 
     @Override
     public float getRadius() {
-        return 100;
+        return radius;
     }
 
-    @NonNull
-    public abstract Bitmap getBitmap();
+    @Override
+    public Bitmap getBitmap(){
+        return bitmap;
+    };
+
+
+    public void setCenterX(float centerX) {
+        this.centerX = centerX;
+    }
+
+    public void setCenterY(float centerY) {
+        this.centerY = centerY;
+    }
 
     @Override
     public void setBubbleRadius(float radius) {
@@ -119,7 +134,13 @@ public abstract class Burbuja implements InterfazBurbuja {
     public void onDraw(Canvas canvas) {
         if (bitmap == null || isBursted)
             return;
-        canvas.drawBitmap(bitmap, centerX - radius, centerY - radius, null);
+        canvas.drawBitmap(bitmap, left, top, null);
+    }
+
+    public void update(){
+        left = (int) (getCenterX() - getRadius());
+        top = (int) (getCenterY() - getRadius());
+        bitmap = getBitmap();
     }
 
     @Override
@@ -130,11 +151,6 @@ public abstract class Burbuja implements InterfazBurbuja {
     @Override
     public void onPlop(){
         isBursted = true;
-    }
-
-    public void updateBubblePosition(){
-        centerX = getCenterX();
-        centerY = getCenterY();
     }
 
 }
