@@ -6,16 +6,16 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import ar.com.andino.pablo.burbugebra.bubbles.Bubble;
 import ar.com.andino.pablo.burbugebra.numeros.Entero;
-import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 
-public class BurbujaFraccion extends Burbuja {
+public class BubbleFraccion extends Bubble {
 
     private BurbujaEntero numerador;
     private BurbujaEntero denominador;
 
-    public BurbujaFraccion(Context context, int numerador, @Nullable Integer denominador) throws RuntimeException {
+    public BubbleFraccion(Context context, int numerador, @Nullable Integer denominador) throws RuntimeException {
         //super(null);
         if (denominador != null && denominador == 0)
             throw new RuntimeException("División por cero");

@@ -58,7 +58,7 @@ public class Ecuacion {
         pincel.setTextSize(60);
         pincel.setTypeface(Typeface.MONOSPACE);
 
-        //canvas.drawTextOnPath("Burbuja de Algebra", trazoI, 10, 40, pincel);
+        //canvas.drawTextOnPath("Bubble de Algebra", trazoI, 10, 40, pincel);
 
 
     }

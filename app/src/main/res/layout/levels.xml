@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_fracciones">
+
+    <Button
+        android:background="@drawable/nombre_logo_1"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="25dp"
+        android:id="@+id/back_button"
+        android:layout_width="172dp"
+        android:layout_height="56dp"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/back_button"
+        android:orientation="vertical"
+        android:layout_margin="25dp">
+
+        <Button
+            android:id="@+id/level7_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l7_name"/>
+
+        <Button
+            android:id="@+id/level6_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l6_name"/>
+
+        <Button
+            android:id="@+id/level5_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l5_name"/>
+
+        <Button
+            android:id="@+id/level4_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l4_name"/>
+
+        <Button
+            android:id="@+id/level3_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l3_name"/>
+
+        <Button
+            android:id="@+id/level2_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="@string/fracciones_l2_name"/>
+
+        <Button
+            android:id="@+id/level1_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/fracciones_l1_name"/>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

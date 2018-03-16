@@ -1,25 +1,26 @@
 package ar.com.andino.pablo.burbugebra.activities;
 
-import android.app.FragmentManager;
-
+import android.media.MediaPlayer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import ar.com.andino.pablo.burbugebra.EquipoMusica;
 import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.fragments.fracciones.Nivel0;
+import ar.com.andino.pablo.burbugebra.fragments.fracciones.Level1;
+import ar.com.andino.pablo.burbugebra.fragments.fracciones.Levels;
 
-public class ActivityFracciones extends FragmentActivity {
-
-    private boolean active;
+public class ActivityFracciones extends FragmentActivity implements View.OnClickListener {
 
     FragmentManager fragmentManager;
+    Levels levels;
+    Level1 level1;
 
-    EquipoMusica equipoMusica;
-    float scaleGlobal;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +31,53 @@ public class ActivityFracciones extends FragmentActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_operaciones_fracciones);
 
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
 
-        final Nivel0 nivel0 = Nivel0.newInstance();
+        levels = Levels.newInstance();
+        level1 = Level1.newInstance();
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_layout, nivel0)
+
+        /*
+        fragmentManager.beginTransaction()
+                .add(R.id.frame_fracciones, levels)
                 .commit();
+             */
+
+        fragmentManager.beginTransaction().replace(R.id.frame_fracciones, levels).commit();
+
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        fragmentManager.beginTransaction().replace(R.id.frame_fracciones, levels).commit();
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+            case R.id.back_button:
+                finish();
+                break;
+            case R.id.level1_button:
+                fragmentManager.beginTransaction().replace(R.id.frame_fracciones, level1).commit();
+                break;
+            default:
+                Log.v("ONCLICK", "NADA" + view.getId());
+
+        }
 
 
     }

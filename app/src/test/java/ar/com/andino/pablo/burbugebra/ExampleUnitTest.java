@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import ar.com.andino.pablo.burbugebra.numeros.Entero;
 import ar.com.andino.pablo.burbugebra.numeros.Fraccion;
+import ar.com.andino.pablo.burbugebra.utils.Utils;
 
 import static org.junit.Assert.*;
 
@@ -40,6 +41,40 @@ public class ExampleUnitTest {
 
         assertTrue(entero.dividirPor(10) == 4);
         assertTrue(entero.getValor() == 0);
+
+    }
+
+    @Test
+    public void whileTest() throws Exception {
+
+        boolean condicion = false;
+        int count = 0;
+        do {
+
+            System.out.println("Primer entrada:  " + count + " - condition: " + condicion);
+
+            condicion = count < 5;
+
+            System.out.println("Segunda entrada: " + count + " - condition: " + condicion);
+
+            count++;
+
+        } while (condicion);
+    }
+
+    @Test
+    public void randomTest() throws Exception {
+
+        int[] randomNumbers;
+
+        randomNumbers = Utils.createRandomNumbers(10, -5, 5, false);
+        for (int position = 0; position < randomNumbers.length; position++)
+            System.out.print(randomNumbers[position] + ", ");
+        System.out.println();
+        randomNumbers = Utils.createRandomNumbers(10, -5, 5, true);
+        for (int position = 0; position < randomNumbers.length; position++)
+            System.out.print(randomNumbers[position] + ", ");
+        System.out.println();
 
     }
 

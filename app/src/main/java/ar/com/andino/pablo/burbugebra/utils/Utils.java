@@ -29,6 +29,34 @@ public class Utils {
 
     }
 
+    public static int[] createRandomNumbers(int cant, int limitInf, int limitSup, boolean canRepeat) {
+
+        if (!canRepeat && cant > limitSup - limitInf)
+            throw new IllegalArgumentException("No se pueden generar numeros aleatorios sin repeticiones");
+
+        int[] randomNumbers = new int[cant];
+        int newRandom;
+
+        for (int globalPosition = 0; globalPosition < cant; globalPosition++) {
+            newRandom = limitInf + (int) (Math.random() * (limitSup - limitInf));
+            if (!canRepeat){
+                int localPosition = 0;
+                do {
+                    if (newRandom == randomNumbers[localPosition]){
+                        newRandom = (newRandom == limitSup) ? limitInf : newRandom + 1;
+                        localPosition = 0;
+                        continue;
+                    }
+                    localPosition++;
+                } while (localPosition < globalPosition);
+            }
+            randomNumbers[globalPosition] = newRandom;
+        }
+
+        return randomNumbers;
+
+    }
+
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
 
@@ -46,7 +74,7 @@ public class Utils {
         return BitmapFactory.decodeResource(res, resId, options);
     }
 
-    public static int calculateInSampleSize(
+    private static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
 
         // Raw height and width of image
@@ -69,5 +97,6 @@ public class Utils {
 
         return inSampleSize;
     }
+
 
 }

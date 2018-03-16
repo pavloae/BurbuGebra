@@ -8,14 +8,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.HashMap;
 
-import ar.com.andino.pablo.burbugebra.numeros.Entero;
+import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
 import ar.com.andino.pablo.burbugebra.numeros.InterfazEntero;
-import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
 
@@ -60,12 +57,12 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
 
 
             @Override
-            public void setBubbleRadius(float radius) {
+            public void setRadius(float radius) {
 
             }
 
             @Override
-            public boolean onTouchScreen(float xCoor, float yCoor) {
+            public boolean isTouched(float xCoor, float yCoor) {
                 return false;
             }
 
@@ -158,7 +155,7 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
 
     }
 
-    /// Interfaz Burbuja
+    /// Interfaz Bubble
 
     @Override
     public void onPressed() {
@@ -189,12 +186,12 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
 
 
     @Override
-    public void setBubbleRadius(float radius) {
+    public void setRadius(float radius) {
 
     }
 
     @Override
-    public boolean onTouchScreen(float xCoor, float yCoor) {
+    public boolean isTouched(float xCoor, float yCoor) {
         return false;
     }
 

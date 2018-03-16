@@ -1,4 +1,4 @@
-package ar.com.andino.pablo.burbugebra.elementos;
+package ar.com.andino.pablo.burbugebra.bubbles;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,9 +21,9 @@ public interface InterfazBurbuja {
 
     Bitmap getBitmap();
 
-    void setBubbleRadius(float radius);
+    void setRadius(float radius);
 
-    boolean onTouchScreen(float xCoor, float yCoor);
+    boolean isTouched(float xCoor, float yCoor);
 
     void onDraw(Canvas canvas);
 
