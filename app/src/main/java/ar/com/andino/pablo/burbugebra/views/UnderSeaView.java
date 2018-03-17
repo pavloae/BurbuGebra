@@ -22,6 +22,7 @@ public class UnderSeaView extends View {
     public static float w;
 
     private static Bitmap backGround;
+    public static Bitmap backGroundPerdiste;
     private static int rows;
     private static int columns;
     private int[] randomNumbers;
@@ -35,6 +36,7 @@ public class UnderSeaView extends View {
 
     public UnderSeaView(Context context, int rows, int columns) {
         super(context);
+        backGroundPerdiste = null;
         backGround = BitmapFactory.decodeResource(getResources(), R.drawable.background_undersea);
         bitmapBubble = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue);
         MemoryBubble.hiddenBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue);
@@ -57,6 +59,10 @@ public class UnderSeaView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (backGroundPerdiste != null){
+            canvas.drawBitmap(backGroundPerdiste, 0, 0, null);
+            return;
+        }
         canvas.drawBitmap(backGround, 0, 0, null);
         bubbleGrid.draw(canvas);
     }

@@ -1,6 +1,9 @@
 package ar.com.andino.pablo.burbugebra.fragments.fracciones;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,7 +18,10 @@ import ar.com.andino.pablo.burbugebra.R;
 import ar.com.andino.pablo.burbugebra.bubbles.MemoryBubble;
 import ar.com.andino.pablo.burbugebra.views.UnderSeaView;
 
-public class Level1 extends Fragment implements View.OnTouchListener{
+public class Level1 extends Fragment implements View.OnTouchListener {
+
+    MediaPlayer mediaPlayer;
+    int resourceMusic = R.raw.rebels_be;
 
     UnderSeaView underSeaView;
     Animation animation;
@@ -69,6 +75,7 @@ public class Level1 extends Fragment implements View.OnTouchListener{
                 animation.start();
             }
         });
+        playMusic();
     }
 
     @Override
@@ -80,6 +87,19 @@ public class Level1 extends Fragment implements View.OnTouchListener{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        stopMusic();
+    }
+
+    private void playMusic() {
+        mediaPlayer = MediaPlayer.create(getContext(), resourceMusic);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+
+    }
+
+    public void stopMusic() {
+        mediaPlayer.release();
+        mediaPlayer = null;
     }
 
     @Override
@@ -130,7 +150,6 @@ public class Level1 extends Fragment implements View.OnTouchListener{
         UnderSeaView underSeaView;
 
         boolean animationIsActive;
-        MediaPlayer mediaPlayer;
 
         Animation(UnderSeaView underSeaView){
             this.underSeaView = underSeaView;
@@ -139,20 +158,27 @@ public class Level1 extends Fragment implements View.OnTouchListener{
         @Override
         public void run() {
 
+            long startTime;
             long frameStartTime;
             long frameTime;
 
             try {
 
-                prepareMusic();
                 underSeaView.initBubbles();
 
                 animationIsActive = true;
 
+                startTime = System.currentTimeMillis();
                 while (animationIsActive) {
                     frameStartTime = System.currentTimeMillis();
 
                     underSeaView.bubbleGrid.update();
+                    if (System.currentTimeMillis() - startTime > 15000){
+                        if (UnderSeaView.backGroundPerdiste == null){
+                            UnderSeaView.backGroundPerdiste = BitmapFactory.decodeResource(getResources(), R.drawable.background_perdiste);
+                            UnderSeaView.backGroundPerdiste = Bitmap.createScaledBitmap(UnderSeaView.backGroundPerdiste, underSeaView.getWidth(), underSeaView.getHeight(), false);
+                        }
+                    }
 
                     frameTime = System.currentTimeMillis() - frameStartTime;
                     if (frameTime < MAX_FRAME_TIME) {
@@ -166,24 +192,7 @@ public class Level1 extends Fragment implements View.OnTouchListener{
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (mediaPlayer != null)
-                    mediaPlayer.release();
             }
-
-        }
-
-        private void prepareMusic() {
-            mediaPlayer = MediaPlayer.create(getContext(), R.raw.rebels_be);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    mediaPlayer.setVolume(0.2f, 0.2f);
-                    mediaPlayer.setLooping(true);
-                    mediaPlayer.start();
-                }
-            });
-
         }
 
     }

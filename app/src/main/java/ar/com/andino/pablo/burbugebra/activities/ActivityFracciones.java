@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -18,9 +19,6 @@ public class ActivityFracciones extends FragmentActivity implements View.OnClick
 
     FragmentManager fragmentManager;
     Levels levels;
-    Level1 level1;
-
-    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,18 +32,7 @@ public class ActivityFracciones extends FragmentActivity implements View.OnClick
         fragmentManager = getSupportFragmentManager();
 
         levels = Levels.newInstance();
-        level1 = Level1.newInstance();
-
-
-        /*
-        fragmentManager.beginTransaction()
-                .add(R.id.frame_fracciones, levels)
-                .commit();
-             */
-
-        fragmentManager.beginTransaction().replace(R.id.frame_fracciones, levels).commit();
-
-
+        fragmentManager.beginTransaction().add(R.id.frame_fracciones, levels).commit();
 
     }
 
@@ -60,22 +47,27 @@ public class ActivityFracciones extends FragmentActivity implements View.OnClick
     }
 
     @Override
-    public void onBackPressed() {
-        fragmentManager.beginTransaction().replace(R.id.frame_fracciones, levels).commit();
-    }
-
-    @Override
     public void onClick(View view) {
 
         switch (view.getId()) {
             case R.id.back_button:
-                finish();
+                super.onBackPressed();
                 break;
             case R.id.level1_button:
-                fragmentManager.beginTransaction().replace(R.id.frame_fracciones, level1).commit();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.frame_fracciones, Level1.newInstance());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                break;
+            case R.id.level2_button:
+            case R.id.level3_button:
+            case R.id.level4_button:
+            case R.id.level5_button:
+            case R.id.level6_button:
+            case R.id.level7_button:
                 break;
             default:
-                Log.v("ONCLICK", "NADA" + view.getId());
+
 
         }
 
