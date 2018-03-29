@@ -56,7 +56,7 @@
             android:id="@+id/level2_button"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="@string/fracciones_l2_name"/>
+            android:text="@string/fracciones_l2_name"/>
 
         <Button
             android:id="@+id/level1_button"

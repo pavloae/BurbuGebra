@@ -1,13 +1,9 @@
 package ar.com.andino.pablo.burbugebra.fragments.fracciones;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,23 +11,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.bubbles.MemoryBubble;
-import ar.com.andino.pablo.burbugebra.views.UnderSeaView;
+import ar.com.andino.pablo.burbugebra.views.OperationsView;
 
-public class Level1 extends Fragment implements View.OnTouchListener {
+public class Level2 extends Fragment implements View.OnTouchListener {
 
     MediaPlayer mediaPlayer;
     int resourceMusic = R.raw.rebels_be;
 
-    UnderSeaView underSeaView;
+    OperationsView operationsView;
     Animation animation;
 
-    public Level1() {
+    public Level2() {
         super();
     }
 
-    public static Level1 newInstance(){
-        return new Level1();
+    public static Level2 newInstance(){
+        return new Level2();
     }
 
     @Override
@@ -42,9 +37,9 @@ public class Level1 extends Fragment implements View.OnTouchListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        underSeaView = new UnderSeaView(getContext(), 4, 4);
-        underSeaView.setOnTouchListener(this);
-        return underSeaView;
+        operationsView = new OperationsView(getContext());
+        operationsView.setOnTouchListener(this);
+        return operationsView;
     }
 
     @Override
@@ -68,10 +63,10 @@ public class Level1 extends Fragment implements View.OnTouchListener {
                 e.printStackTrace();
             }
         }
-        underSeaView.post(new Runnable() {
+        operationsView.post(new Runnable() {
             @Override
             public void run() {
-                animation = new Animation(underSeaView);
+                animation = new Animation(operationsView);
                 animation.start();
             }
         });
@@ -114,32 +109,6 @@ public class Level1 extends Fragment implements View.OnTouchListener {
 
     private void update(final float x, final float y) {
 
-        synchronized (underSeaView.bubbleGrid) {
-            for (int posicion = 0; posicion < underSeaView.bubbleGrid.size(); posicion++){
-                if (underSeaView.bubbleGrid.getBubble(posicion).isTouched(x, y) && !underSeaView.bubbleGrid.getBubble(posicion).isBursted){
-                    if (MemoryBubble.burbuja1 == null){
-                        MemoryBubble.burbuja1 = underSeaView.bubbleGrid.getBubble(posicion);
-                        MemoryBubble.burbuja2 = null;
-                        break;
-                    }
-                    if (MemoryBubble.burbuja2 == null){
-                        MemoryBubble.burbuja2 = underSeaView.bubbleGrid.getBubble(posicion);
-                    } else {
-                        MemoryBubble.burbuja1 = underSeaView.bubbleGrid.getBubble(posicion);
-                        MemoryBubble.burbuja2 = null;
-                    }
-                }
-            }
-
-            if (MemoryBubble.burbuja1 != null && MemoryBubble.burbuja2 != null){
-                if (MemoryBubble.burbuja1.getNumber() == MemoryBubble.burbuja2.getNumber() && !MemoryBubble.burbuja1.equals(MemoryBubble.burbuja2)){
-                    MemoryBubble.burbuja1.setBursted(true);
-                    MemoryBubble.burbuja2.setBursted(true);
-                    MemoryBubble.burbuja1 = null;
-                    MemoryBubble.burbuja2 = null;
-                }
-            }
-        }
     }
 
     public class Animation extends Thread{
@@ -147,38 +116,30 @@ public class Level1 extends Fragment implements View.OnTouchListener {
         private static final int FPS = 25;
         private static final int MAX_FRAME_TIME = (int) (1000.0 / FPS);
 
-        UnderSeaView underSeaView;
+        OperationsView operationsView;
 
         boolean animationIsActive;
 
-        Animation(UnderSeaView underSeaView){
-            this.underSeaView = underSeaView;
+        Animation(OperationsView operationsView){
+            this.operationsView = operationsView;
         }
 
         @Override
         public void run() {
 
-            long startTime;
             long frameStartTime;
             long frameTime;
 
             try {
 
-                underSeaView.initBubbles();
+                operationsView.initBubbles();
 
                 animationIsActive = true;
 
-                startTime = System.currentTimeMillis();
                 while (animationIsActive) {
                     frameStartTime = System.currentTimeMillis();
 
-                    underSeaView.bubbleGrid.update();
-                    if (System.currentTimeMillis() - startTime > 30000){
-                        if (UnderSeaView.backGroundPerdiste == null){
-                            UnderSeaView.backGroundPerdiste = BitmapFactory.decodeResource(getResources(), R.drawable.background_perdiste);
-                            UnderSeaView.backGroundPerdiste = Bitmap.createScaledBitmap(UnderSeaView.backGroundPerdiste, underSeaView.getWidth(), underSeaView.getHeight(), false);
-                        }
-                    }
+                    operationsView.textBubble.update();
 
                     frameTime = System.currentTimeMillis() - frameStartTime;
                     if (frameTime < MAX_FRAME_TIME) {
@@ -188,7 +149,7 @@ public class Level1 extends Fragment implements View.OnTouchListener {
                             e.printStackTrace();
                         }
                     }
-                    underSeaView.postInvalidate();
+                    operationsView.postInvalidate();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

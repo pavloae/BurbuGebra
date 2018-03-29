@@ -1,4 +1,4 @@
-package ar.com.andino.pablo.burbugebra.elementos;
+package ar.com.andino.pablo.burbugebra.bubbles;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,29 +11,19 @@ import android.graphics.Typeface;
 
 import java.util.HashMap;
 
-import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
 import ar.com.andino.pablo.burbugebra.numeros.InterfazEntero;
 
-public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
+public abstract class IntegerBubble extends Bubble implements InterfazEntero, InterfazBurbuja {
 
 
     public static int scale = 120;
 
     Context context;
-    boolean isShowing;
     int valor = 1;
 
-    public float t = 0;
-    final float A = 5;
-    final float T = 1.5f;
-    final float w = (float) (2 * Math.PI / T);
+    public static IntegerBubble getInstance(Context context, int entero) {
 
-    public boolean isPressed;
-    private boolean isExploited;
-
-    public static BurbujaEntero getInstance(Context context, int entero) {
-
-        return new BurbujaEntero(context, entero) {
+        return new IntegerBubble(context, entero) {
 
             @Override
             public float getCenterX() {
@@ -70,7 +60,7 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
         };
     }
 
-    public BurbujaEntero(Context context, int valor) {
+    public IntegerBubble(Context context, int valor) {
         this.context = context;
         this.valor = valor;
     }
@@ -159,6 +149,7 @@ public abstract class BurbujaEntero implements InterfazEntero, InterfazBurbuja {
 
     @Override
     public void onPressed() {
+        super.onPressed();
         //bubbleToBitmap(getBitmap(String.valueOf(valor)));
     }
 

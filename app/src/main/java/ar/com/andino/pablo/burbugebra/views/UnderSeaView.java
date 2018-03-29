@@ -49,6 +49,7 @@ public class UnderSeaView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         backGround = Bitmap.createScaledBitmap(backGround, w, h, false);
+        //Utils.setTextToBitmap("2·x-8:2=4", 100, getWidth()/2, (int) (0.3 * getHeight()), backGround, Typeface.createFromAsset(getContext().getAssets(), "comic_sans_ms_bold.ttf"));
         radius = Math.min(getWidth() / columns, getHeight() / rows) * 0.40f;
         A = radius / 10f;
         k = (float) (2 * Math.PI / getWidth());
@@ -73,7 +74,7 @@ public class UnderSeaView extends View {
     }
 
     public void initBubbles() {
-        MemoryBubble.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "lin_libertine_i.otf"));
+        MemoryBubble.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "comic_sans_ms_bold.ttf"));
         for (int position = 0; position < (rows * columns); position++){
             bubbleGrid.addBubble(
                     new MemoryBubble(

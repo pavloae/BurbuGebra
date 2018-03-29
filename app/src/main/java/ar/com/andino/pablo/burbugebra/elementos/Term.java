@@ -2,62 +2,48 @@ package ar.com.andino.pablo.burbugebra.elementos;
 
 import java.util.Locale;
 
-public final class Factor implements Groupable<GroupFactor, FactorValue> {
+public final class Term implements Groupable<GroupTerm, TermValue> {
 
-    private GroupFactor parent;
-    private FactorValue value;
+    private GroupTerm parent;
+    private TermValue value;
 
-    public Factor() {
-        this.value = new Rational(1);
+    public Term() {
+        this.value = new Rational(0);
         this.value.setParent(this);
     }
 
-    public Factor(int numerator) {
+    public Term(int numerator) {
         this.value = new Rational(numerator);
         this.value.setParent(this);
     }
 
-    public Factor(int numerator, int denominator) {
+    public Term(int numerator, int denominator) {
         this.value = new Rational(numerator, denominator);
         this.value.setParent(this);
     }
 
-    public Factor(FactorValue value){
+    public Term(TermValue value){
         this.value = value;
         this.value.setParent(this);
     }
 
-    public void addFactor(Factor factor) {
-
-        if (this.value instanceof Rational && factor.value instanceof Rational){
-            ((Rational) this.value).operate((Rational) factor.value);
-            factor.getParent().remove(factor);
-        }
-
-        if (this.value instanceof GroupTerm && factor.value instanceof Rational) {
-            ((GroupTerm) this.value).distributive(factor.value);
-        }
-
-
-    }
-
     @Override
-    public FactorValue getValue() {
+    public TermValue getValue() {
         return value;
     }
 
     @Override
-    public void setValue(FactorValue value) {
+    public void setValue(TermValue value) {
         this.value = value;
     }
 
     @Override
-    public GroupFactor getParent() {
+    public GroupTerm getParent() {
         return parent;
     }
 
     @Override
-    public void setParent(GroupFactor parent) {
+    public void setParent(GroupTerm parent) {
         if (this.parent != null)
             this.parent.remove(this);
         this.parent = parent;
@@ -73,7 +59,7 @@ public final class Factor implements Groupable<GroupFactor, FactorValue> {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (getPositionOnParent() > 0)
-            stringBuilder.append("·");
+            stringBuilder.append("+");
 
         if (value instanceof GroupTerm && parent.size() > 0)
             stringBuilder.append("(%s)");
@@ -82,5 +68,4 @@ public final class Factor implements Groupable<GroupFactor, FactorValue> {
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
-
 }

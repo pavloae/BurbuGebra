@@ -43,10 +43,12 @@ public class Levels extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button backButton = view.findViewById(R.id.back_button);
-        Button level0 = view.findViewById(R.id.level1_button);
+        Button level1 = view.findViewById(R.id.level1_button);
+        Button level2 = view.findViewById(R.id.level2_button);
 
         backButton.setOnClickListener((ActivityFracciones) getActivity());
-        level0.setOnClickListener((ActivityFracciones) getActivity());
+        level1.setOnClickListener((ActivityFracciones) getActivity());
+        level2.setOnClickListener((ActivityFracciones) getActivity());
 
     }
 

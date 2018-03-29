@@ -5,8 +5,13 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 
@@ -26,6 +31,38 @@ public class Utils {
         drawable.draw(canvas);
 
         return bitmap;
+
+    }
+
+    public static void setTextToBitmap(String text, int textSize, int positionX, int positionY, Bitmap bitmap, @Nullable Typeface typeface) {
+
+        Paint textPaint = new Paint();
+        textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextSize(textSize);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        typeface = (typeface == null) ? Typeface.create(Typeface.MONOSPACE, Typeface.BOLD) : typeface;
+        textPaint.setTypeface(typeface);
+
+        if (typeface != null)
+            textPaint.setTypeface(typeface);
+
+        Rect bound = new Rect();
+        textPaint.getTextBounds(text, 0, text.length(), bound);
+        int width = bound.width();
+        int height = (int) (textPaint.getFontMetrics().descent - textPaint.getFontMetrics().ascent);
+
+        //Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        // Initialize a new Canvas instance
+        Canvas canvas = new Canvas(bitmap);
+        //canvas.drawColor(Color.TRANSPARENT);
+        canvas.drawText(
+                text,
+                positionX,
+                positionY,
+                textPaint
+        );
 
     }
 

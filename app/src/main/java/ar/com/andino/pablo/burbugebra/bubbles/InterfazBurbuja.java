@@ -1,15 +1,7 @@
 package ar.com.andino.pablo.burbugebra.bubbles;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public interface InterfazBurbuja {
 
@@ -21,7 +13,13 @@ public interface InterfazBurbuja {
 
     Bitmap getBitmap();
 
+    void setCenterX(float centerX);
+
+    void setCenterY(float centerY);
+
     void setRadius(float radius);
+
+    void setBitmap(Bitmap bitmap);
 
     boolean isTouched(float xCoor, float yCoor);
 

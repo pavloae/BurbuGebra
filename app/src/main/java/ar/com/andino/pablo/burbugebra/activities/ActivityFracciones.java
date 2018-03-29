@@ -13,6 +13,7 @@ import android.view.WindowManager;
 
 import ar.com.andino.pablo.burbugebra.R;
 import ar.com.andino.pablo.burbugebra.fragments.fracciones.Level1;
+import ar.com.andino.pablo.burbugebra.fragments.fracciones.Level2;
 import ar.com.andino.pablo.burbugebra.fragments.fracciones.Levels;
 
 public class ActivityFracciones extends FragmentActivity implements View.OnClickListener {
@@ -49,17 +50,21 @@ public class ActivityFracciones extends FragmentActivity implements View.OnClick
     @Override
     public void onClick(View view) {
 
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (view.getId()) {
             case R.id.back_button:
                 super.onBackPressed();
                 break;
             case R.id.level1_button:
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.frame_fracciones, Level1.newInstance());
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
                 break;
             case R.id.level2_button:
+                fragmentTransaction.replace(R.id.frame_fracciones, Level2.newInstance());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                break;
             case R.id.level3_button:
             case R.id.level4_button:
             case R.id.level5_button:
