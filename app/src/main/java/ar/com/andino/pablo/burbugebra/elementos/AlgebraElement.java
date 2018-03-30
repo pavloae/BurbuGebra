@@ -1,6 +1,6 @@
 package ar.com.andino.pablo.burbugebra.elementos;
 
-public interface AlgebraElement extends ElementGraphic {
+public interface AlgebraElement {
 
     public static final int EQUATION = 0;
     public static final int MEMBER = 1;

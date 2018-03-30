@@ -1,13 +1,12 @@
 package ar.com.andino.pablo.burbugebra.elementos;
 
-import android.graphics.Bitmap;
-
 import java.util.Locale;
 
 public final class Rational implements FactorValue, TermValue {
 
     private int numerator;
     private int denominator;
+    private String name;
     private Groupable parent;
 
     public Rational(int numerator) {
@@ -20,6 +19,10 @@ public final class Rational implements FactorValue, TermValue {
             throw new ArithmeticException("División por cero");
         this.numerator = numerator;
         this.denominator = denominator;
+    }
+
+    public Rational(String name) {
+        this.name = name;
     }
 
     public void setValue(int numerator) {
@@ -53,16 +56,6 @@ public final class Rational implements FactorValue, TermValue {
     }
 
     @Override
-    public Groupable getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(Groupable parent) {
-        this.parent = parent;
-    }
-
-    @Override
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -82,4 +75,18 @@ public final class Rational implements FactorValue, TermValue {
 
     }
 
+    @Override
+    public Groupable getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(Factor parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public void setParent(Term parent) {
+        this.parent = parent;
+    }
 }

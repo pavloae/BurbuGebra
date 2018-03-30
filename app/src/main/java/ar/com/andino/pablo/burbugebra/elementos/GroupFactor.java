@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class GroupFactor extends ArrayList<Factor> implements NoGroupable, TermValue {
+public class GroupFactor extends ArrayList<Factor> implements TermValue {
 
     private Term parent;
 
@@ -37,13 +37,13 @@ public class GroupFactor extends ArrayList<Factor> implements NoGroupable, TermV
 
     @Override
     @Nullable
-    public Groupable getParent() {
+    public Term getParent() {
         return parent;
     }
 
     @Override
-    public void setParent(Groupable parent) {
-        this.parent = (Term) parent;
+    public void setParent(Term parent) {
+        this.parent = parent;
     }
 
     @Override

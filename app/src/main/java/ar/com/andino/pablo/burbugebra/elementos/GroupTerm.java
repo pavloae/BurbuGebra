@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class GroupTerm extends ArrayList<Term> implements NoGroupable, FactorValue {
+public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
     private Factor parent;
 
@@ -20,13 +20,15 @@ public class GroupTerm extends ArrayList<Term> implements NoGroupable, FactorVal
         }
     }
 
-    public void distributive(FactorValue factor){
+    public void distributive(FactorValue factorValue){
         for (Term term : this){
+            Factor factor = new Factor();
             if (term.getValue() instanceof Rational){
-                term.setValue(new GroupFactor(new Factor((FactorValue) term.getValue())));
+                factor.setValue((Rational) term.getValue());
+                term.setValue(new GroupFactor(factor));
             }
-            ((GroupFactor) term.getValue()).add(0, new Factor(factor));
-            factor.setParent(term);
+            ((GroupFactor) term.getValue()).add(0, factor);
+            factor.setParent((GroupFactor) term.getValue());
         }
 
     }
@@ -48,12 +50,12 @@ public class GroupTerm extends ArrayList<Term> implements NoGroupable, FactorVal
 
     @Override
     @Nullable
-    public Groupable getParent() {
+    public Factor getParent() {
         return parent;
     }
 
     @Override
-    public void setParent(Groupable parent) {
+    public void setParent(Factor parent) {
         this.parent = (Factor) parent;
     }
 

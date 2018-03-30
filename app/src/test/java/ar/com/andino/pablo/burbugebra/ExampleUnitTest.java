@@ -1,6 +1,7 @@
 package ar.com.andino.pablo.burbugebra;
 
 import android.os.CountDownTimer;
+import android.util.Log;
 
 import org.junit.Test;
 
@@ -21,6 +22,45 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
+    }
+
+    @Test
+    public void createRandomNumbers() throws Exception {
+
+        int cant = 10;
+        int[] randomNumbers = new int[cant];
+        int limitSup = 5;
+        int limitInf = -5;
+
+        assert cant < limitSup - limitInf;
+
+        int newRandom;
+        boolean original;
+        for (int totalPosition = 0; totalPosition < cant; totalPosition++) {
+            newRandom = limitInf + (int) (Math.random() * (limitSup -limitInf));
+
+            do {
+                original = true;
+                //section:
+                for (int partialPosition = 0; partialPosition < totalPosition; partialPosition++) {
+                    System.out.print(newRandom + ", ");
+                    if (newRandom == randomNumbers[partialPosition]){
+                        newRandom = (newRandom == limitSup) ? limitInf : newRandom + 1;
+                        original = false;
+                        //break section;
+                    }
+                }
+            } while (!original);
+
+            System.out.println();
+            System.out.println(newRandom);
+            randomNumbers[totalPosition] = newRandom;
+        }
+
+        for (int random : randomNumbers)
+            System.out.print(random + ", ");
+        System.out.println();
+
     }
 
     @Test

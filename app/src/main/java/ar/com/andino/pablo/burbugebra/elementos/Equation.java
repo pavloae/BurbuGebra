@@ -2,26 +2,26 @@ package ar.com.andino.pablo.burbugebra.elementos;
 
 public class Equation{
 
-    private GroupTerm leftMember, rightMember;
+    private NoGroupable leftMember, rightMember;
 
     public Equation(){
         leftMember = new GroupTerm();
         rightMember = new GroupTerm();
     }
 
-    public GroupTerm getLeftMember() {
+    public NoGroupable getLeftMember() {
         return leftMember;
     }
 
-    public void setLeftMember(GroupTerm leftMember) {
+    public void setLeftMember(NoGroupable leftMember) {
         this.leftMember = leftMember;
     }
 
-    public GroupTerm getRightMember() {
+    public NoGroupable getRightMember() {
         return rightMember;
     }
 
-    public void setRightMember(GroupTerm rightMember) {
+    public void setRightMember(NoGroupable rightMember) {
         this.rightMember = rightMember;
     }
 }
