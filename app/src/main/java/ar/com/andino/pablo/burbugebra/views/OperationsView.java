@@ -8,8 +8,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.bubbles.TextBubble;
-import ar.com.andino.pablo.burbugebra.elementos.Rational;
+import ar.com.andino.pablo.burbugebra.bubbles.Bubble;
 
 public class OperationsView extends View {
 
@@ -21,7 +20,7 @@ public class OperationsView extends View {
 
     private static Bitmap backGroundGame;
 
-    public TextBubble textBubble;
+    public Bubble textBubble;
     public static Bitmap bitmapBubble;
 
     public OperationsView(Context context, AttributeSet attributeSet){
@@ -60,16 +59,7 @@ public class OperationsView extends View {
 
     public void initBubbles() {
 
-        textBubble = new TextBubble(
-                BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue),
-                getWidth() / 2,
-                getHeight() / 2,
-                0.10f * getWidth()
-        ) {
-        }.setElementText(new Rational(6));
 
-
-        textBubble.plotStringValue();
 
     }
 

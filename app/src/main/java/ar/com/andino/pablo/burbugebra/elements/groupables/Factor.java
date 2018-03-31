@@ -1,49 +1,54 @@
-package ar.com.andino.pablo.burbugebra.elementos;
+package ar.com.andino.pablo.burbugebra.elements.groupables;
 
 import java.util.Locale;
 
-public final class Term implements Groupable<GroupTerm, TermValue> {
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.FactorValue;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
-    private GroupTerm parent;
-    private TermValue value;
+public final class Factor implements Groupable<GroupFactor, FactorValue> {
 
-    public Term() {
-        this.value = new Rational(0);
+    private GroupFactor parent;
+    private FactorValue value;
+
+    public Factor() {
+        this.value = new Rational(1);
         this.value.setParent(this);
     }
 
-    public Term(int numerator) {
+    public Factor(int numerator) {
         this.value = new Rational(numerator);
         this.value.setParent(this);
     }
 
-    public Term(int numerator, int denominator) {
+    public Factor(int numerator, int denominator) {
         this.value = new Rational(numerator, denominator);
         this.value.setParent(this);
     }
 
-    public Term(TermValue value){
+    public Factor(FactorValue value){
         this.value = value;
         this.value.setParent(this);
     }
 
     @Override
-    public TermValue getValue() {
+    public FactorValue getValue() {
         return value;
     }
 
     @Override
-    public void setValue(TermValue value) {
+    public void setValue(FactorValue value) {
         this.value = value;
     }
 
     @Override
-    public GroupTerm getParent() {
+    public GroupFactor getParent() {
         return parent;
     }
 
     @Override
-    public void setParent(GroupTerm parent) {
+    public void setParent(GroupFactor parent) {
         if (this.parent != null)
             this.parent.remove(this);
         this.parent = parent;
@@ -59,7 +64,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (getPositionOnParent() > 0)
-            stringBuilder.append("+");
+            stringBuilder.append("·");
 
         if (value instanceof GroupTerm && parent.size() > 0)
             stringBuilder.append("(%s)");
@@ -68,4 +73,5 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
+
 }

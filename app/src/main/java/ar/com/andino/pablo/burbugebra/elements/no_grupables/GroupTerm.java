@@ -1,8 +1,10 @@
-package ar.com.andino.pablo.burbugebra.elementos;
-
-import android.support.annotation.Nullable;
+package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
 import java.util.ArrayList;
+
+import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
@@ -30,7 +32,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
             ((GroupFactor) term.getValue()).add(0, factor);
             factor.setParent((GroupFactor) term.getValue());
         }
-
     }
 
     @Override
@@ -49,14 +50,23 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     }
 
     @Override
-    @Nullable
     public Factor getParent() {
         return parent;
     }
 
     @Override
+    public void removeValue(Groupable value) {
+
+    }
+
+    @Override
+    public Groupable group(Groupable groupable) {
+        return null;
+    }
+
+    @Override
     public void setParent(Factor parent) {
-        this.parent = (Factor) parent;
+        this.parent = parent;
     }
 
     @Override

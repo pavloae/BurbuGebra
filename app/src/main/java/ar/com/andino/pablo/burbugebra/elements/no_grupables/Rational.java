@@ -1,6 +1,10 @@
-package ar.com.andino.pablo.burbugebra.elementos;
+package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
 import java.util.Locale;
+
+import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public final class Rational implements FactorValue, TermValue {
 
@@ -37,24 +41,6 @@ public final class Rational implements FactorValue, TermValue {
         this.denominator = denominator;
     }
 
-    boolean operate(Rational rational){
-
-        if (rational.parent instanceof Factor){
-            this.numerator = this.numerator * rational.numerator;
-            this.denominator = this.denominator * rational.denominator;
-            return true;
-        }
-
-        if (this.parent instanceof Term) {
-            this.numerator = numerator * rational.denominator + denominator * rational.numerator;
-            this.denominator = denominator * rational.denominator;
-            return true;
-        }
-
-        return false;
-
-    }
-
     @Override
     public String toString() {
 
@@ -78,6 +64,25 @@ public final class Rational implements FactorValue, TermValue {
     @Override
     public Groupable getParent() {
         return parent;
+    }
+
+    @Override
+    public void removeValue(Groupable value) {
+
+    }
+
+    @Override
+    public Groupable group(Groupable groupable) {
+
+        // Multiplicación de dos racionales
+        if (this.parent instanceof Factor && groupable.getValue() instanceof Rational) {
+            this.numerator = this.numerator * ((Rational) groupable.getValue()).numerator;
+            this.denominator = this.denominator * ((Rational) groupable.getValue()).denominator;
+            return parent;
+        }
+
+        return null;
+
     }
 
     @Override

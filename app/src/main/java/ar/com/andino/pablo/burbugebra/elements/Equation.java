@@ -1,6 +1,9 @@
-package ar.com.andino.pablo.burbugebra.elementos;
+package ar.com.andino.pablo.burbugebra.elements;
 
-public class Equation{
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.NoGroupable;
+
+public class Equation {
 
     private NoGroupable leftMember, rightMember;
 

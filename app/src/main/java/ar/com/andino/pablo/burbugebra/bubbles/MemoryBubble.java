@@ -3,7 +3,7 @@ package ar.com.andino.pablo.burbugebra.bubbles;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 
-public class MemoryBubble extends TextBubble {
+public class MemoryBubble extends Bubble {
 
     private static Typeface typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
 
@@ -17,7 +17,6 @@ public class MemoryBubble extends TextBubble {
 
     public MemoryBubble setNumber(int number) {
         this.number = number;
-        plotStringValue();
         return this;
     }
 
@@ -28,7 +27,6 @@ public class MemoryBubble extends TextBubble {
     @Override
     public Bitmap getBitmap() {
         if (this.equals(MemoryBubble.burbuja1) || this.equals(MemoryBubble.burbuja2)) {
-            plotStringValue();
             return super.getBitmap();
         }
         return Bitmap.createScaledBitmap(MemoryBubble.hiddenBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);

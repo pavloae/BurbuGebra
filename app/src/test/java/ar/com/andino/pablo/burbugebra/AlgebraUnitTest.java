@@ -2,15 +2,10 @@ package ar.com.andino.pablo.burbugebra;
 
 import org.junit.Test;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import ar.com.andino.pablo.burbugebra.elementos.Factor;
-import ar.com.andino.pablo.burbugebra.elementos.GroupFactor;
-import ar.com.andino.pablo.burbugebra.elementos.GroupTerm;
-import ar.com.andino.pablo.burbugebra.elementos.Rational;
-import ar.com.andino.pablo.burbugebra.elementos.Term;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class AlgebraUnitTest {
 
@@ -46,11 +41,11 @@ public class AlgebraUnitTest {
 
         System.out.println(groupTerm0.toString());
 
-        f5.addFactor(f8_3);
+        f5.getValue().group(f8_3);
 
         System.out.println(groupTerm0.toString());
 
-        groupTerm0.distributive(new Rational(9));
+        //groupTerm0.distributive(new Rational(9));
 
         System.out.println(groupTerm0.toString());
 
