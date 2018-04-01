@@ -8,6 +8,22 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public final class Rational implements FactorValue, TermValue {
 
+    public int getNumerator() {
+        return numerator;
+    }
+
+    public void setNumerator(int numerator) {
+        this.numerator = numerator;
+    }
+
+    public int getDenominator() {
+        return denominator;
+    }
+
+    public void setDenominator(int denominator) {
+        this.denominator = denominator;
+    }
+
     private int numerator;
     private int denominator;
     private String name;
@@ -68,20 +84,6 @@ public final class Rational implements FactorValue, TermValue {
 
     @Override
     public void removeValue(Groupable value) {
-
-    }
-
-    @Override
-    public Groupable group(Groupable groupable) {
-
-        // Multiplicación de dos racionales
-        if (this.parent instanceof Factor && groupable.getValue() instanceof Rational) {
-            this.numerator = this.numerator * ((Rational) groupable.getValue()).numerator;
-            this.denominator = this.denominator * ((Rational) groupable.getValue()).denominator;
-            return parent;
-        }
-
-        return null;
 
     }
 

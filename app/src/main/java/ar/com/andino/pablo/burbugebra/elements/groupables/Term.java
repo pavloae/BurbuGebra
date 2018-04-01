@@ -42,6 +42,28 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     }
 
     @Override
+    public boolean group(Groupable groupable) {
+
+        if (groupable instanceof Term){
+
+            if (getValue() instanceof Rational && groupable.getValue() instanceof Rational)
+                return group(((Rational) this.value), ((Rational) groupable.getValue()));
+
+            if (getValue() instanceof Rational && groupable.getValue() instanceof GroupTerm)
+                return group(((Rational) this.value), ((GroupTerm) groupable.getValue()));
+
+            if (getValue() instanceof GroupTerm && groupable.getValue() instanceof Rational)
+                return group(((GroupTerm) this.value), ((Rational) groupable.getValue()));
+
+            if (getValue() instanceof GroupTerm && groupable.getValue() instanceof GroupTerm)
+                return group(((GroupTerm) this.value), ((GroupTerm) groupable.getValue()));
+
+        }
+
+        return false;
+    }
+
+    @Override
     public GroupTerm getParent() {
         return parent;
     }
@@ -72,4 +94,25 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
+
+    protected boolean group(Rational value1, Rational value2) {
+
+        return false;
+    }
+
+    protected boolean group(Rational value1, GroupTerm value2) {
+
+        return false;
+    }
+
+    protected boolean group(GroupTerm value1, Rational value2) {
+
+        return false;
+    }
+
+    protected boolean group(GroupTerm value1, GroupTerm value2) {
+
+        return false;
+    }
+
 }

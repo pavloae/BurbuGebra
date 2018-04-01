@@ -2,12 +2,13 @@ package ar.com.andino.pablo.burbugebra.elements.groupables;
 
 import java.util.Locale;
 
+import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.FactorValue;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
-public final class Factor implements Groupable<GroupFactor, FactorValue> {
+public class Factor implements Groupable<GroupFactor, FactorValue> {
 
     private GroupFactor parent;
     private FactorValue value;
@@ -43,6 +44,27 @@ public final class Factor implements Groupable<GroupFactor, FactorValue> {
     }
 
     @Override
+    public boolean group(Groupable groupable) {
+
+        if (groupable instanceof Term)
+            return false;
+
+        if (getValue() instanceof Rational && groupable.getValue() instanceof Rational)
+            return group(((Rational) this.value), ((Rational) groupable.getValue()));
+
+        if (getValue() instanceof Rational && groupable.getValue() instanceof GroupTerm)
+            return group(((Rational) this.value), ((GroupTerm) groupable.getValue()));
+
+        if (getValue() instanceof GroupTerm && groupable.getValue() instanceof Rational)
+            return group(((GroupTerm) this.value), ((Rational) groupable.getValue()));
+
+        if (getValue() instanceof GroupTerm && groupable.getValue() instanceof GroupTerm)
+            return group(((GroupTerm) this.value), ((GroupTerm) groupable.getValue()));
+
+        return false;
+    }
+
+    @Override
     public GroupFactor getParent() {
         return parent;
     }
@@ -72,6 +94,39 @@ public final class Factor implements Groupable<GroupFactor, FactorValue> {
             stringBuilder.append("%s");
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
+    }
+
+    protected boolean group(Rational value1, Rational value2) {
+        value1.setNumerator(value1.getNumerator() * value2.getNumerator());
+        value1.setDenominator(value1.getDenominator() * value2.getDenominator());
+        value2.getParent().getParent().removeValue(value2.getParent());
+        return true;
+    }
+
+    protected boolean group(Rational value1, GroupTerm value2) {
+
+        return false;
+    }
+
+    protected boolean group(GroupTerm value1, Rational value2) {
+        Groupable oldParent = value2.getParent();
+        for (Term term : value1){
+            if (term.getValue() instanceof GroupFactor){
+                ((GroupFactor) term.getValue()).add(new Factor(value2));
+            } else {
+                term.setValue(new GroupFactor(
+                        new Factor((Rational) term.getValue()),
+                        new Factor(value2)
+                ));
+            }
+        }
+        oldParent.getParent().removeValue(value2.getParent());
+        return true;
+    }
+
+    protected boolean group(GroupTerm value1, GroupTerm value2) {
+
+        return false;
     }
 
 }

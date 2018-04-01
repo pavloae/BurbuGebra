@@ -44,12 +44,7 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
 
     @Override
     public void removeValue(Groupable value) {
-
-    }
-
-    @Override
-    public Groupable group(Groupable groupable) {
-        return null;
+        super.remove(value);
     }
 
     @Override

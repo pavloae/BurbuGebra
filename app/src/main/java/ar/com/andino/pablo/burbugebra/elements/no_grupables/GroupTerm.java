@@ -60,11 +60,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     }
 
     @Override
-    public Groupable group(Groupable groupable) {
-        return null;
-    }
-
-    @Override
     public void setParent(Factor parent) {
         this.parent = parent;
     }

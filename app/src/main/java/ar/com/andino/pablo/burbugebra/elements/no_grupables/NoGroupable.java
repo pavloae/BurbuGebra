@@ -7,6 +7,6 @@ public interface NoGroupable {
     Groupable getParent();
     void removeValue(Groupable value);
 
-    Groupable group(Groupable groupable);
+
 
 }
