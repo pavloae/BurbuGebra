@@ -7,26 +7,26 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
 public class Equation {
 
-    private NoGroupable leftMember, rightMember;
+    private GroupTerm leftMember, rightMember;
 
     public Equation(){
         leftMember = new GroupTerm();
         rightMember = new GroupTerm();
     }
 
-    public NoGroupable getLeftMember() {
+    public GroupTerm getLeftMember() {
         return leftMember;
     }
 
-    public void setLeftMember(NoGroupable leftMember) {
+    public void setLeftMember(GroupTerm leftMember) {
         this.leftMember = leftMember;
     }
 
-    public NoGroupable getRightMember() {
+    public GroupTerm getRightMember() {
         return rightMember;
     }
 
-    public void setRightMember(NoGroupable rightMember) {
+    public void setRightMember(GroupTerm rightMember) {
         this.rightMember = rightMember;
     }
 
@@ -41,4 +41,8 @@ public class Equation {
         return rational1;
     }
 
+    @Override
+    public String toString() {
+        return leftMember.toString() + " = " + rightMember.toString();
+    }
 }

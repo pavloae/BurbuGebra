@@ -1,6 +1,7 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
@@ -24,8 +25,12 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
 
     public void free(Factor value){
         super.remove(value);
-        if (super.size() == 0)
-            parent.free();
+        onUpdate();
+    }
+
+    public void onUpdate() {
+        if (parent != null && super.size() < 2)
+            parent.onUpdate();
     }
 
     @Override
@@ -51,6 +56,7 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
     @Override
     public void removeValue(Groupable value) {
         super.remove(value);
+        onUpdate();
     }
 
     @Override

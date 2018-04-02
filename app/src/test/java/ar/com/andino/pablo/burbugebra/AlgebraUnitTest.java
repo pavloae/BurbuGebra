@@ -2,6 +2,7 @@ package ar.com.andino.pablo.burbugebra;
 
 import org.junit.Test;
 
+import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
@@ -9,6 +10,13 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
 public class AlgebraUnitTest {
+
+    Equation equation;
+
+    public void initEquation(){
+        equation = new Equation();
+
+    }
 
     @Test
     public void getStringValue() throws Exception {
@@ -43,15 +51,37 @@ public class AlgebraUnitTest {
                 )
         );
 
-        System.out.println(groupTerm0.toString());
+        initEquation();
+
+        equation.getLeftMember().addAll(groupTerm0);
+
+        System.out.println(equation.toString());
 
         f5.group(f8_3);
 
-        System.out.println(groupTerm0.toString());
+        System.out.println(equation.toString());
 
-        gf.group(f2);
+        f2.group(gf);
 
-        System.out.println(groupTerm0.toString());
+        System.out.println(equation.toString());
+
+        GroupFactor gF = (GroupFactor) groupTerm0.get(0).value;
+        gF.get(0).group(gF.get(1));
+
+        System.out.println(equation.toString());
+
+        gF = (GroupFactor) groupTerm0.get(1).value;
+        gF.get(0).group(gF.get(1));
+
+        System.out.println(equation.toString());
+
+        gF.get(0).group(gF.get(1));
+
+        System.out.println(equation.toString());
+
+        groupTerm0.get(0).group(groupTerm0.get(1));
+
+        System.out.println(equation.toString());
 
     }
 

@@ -22,6 +22,11 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
         }
     }
 
+    public void onUpdate() {
+        if (parent != null && super.size() < 2)
+            parent.onUpdate();
+    }
+
     public void free(Term value){
         super.remove(value);
         if (super.size() == 0)
@@ -63,6 +68,7 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     @Override
     public void removeValue(Groupable value) {
         super.remove(value);
+        onUpdate();
     }
 
     @Override
