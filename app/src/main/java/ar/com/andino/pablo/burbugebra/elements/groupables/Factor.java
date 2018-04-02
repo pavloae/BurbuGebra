@@ -2,16 +2,16 @@ package ar.com.andino.pablo.burbugebra.elements.groupables;
 
 import java.util.Locale;
 
-import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.FactorValue;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.TermValue;
 
 public class Factor implements Groupable<GroupFactor, FactorValue> {
 
     private GroupFactor parent;
-    private FactorValue value;
+    public FactorValue value;
 
     public Factor() {
         this.value = new Rational(1);
@@ -34,6 +34,12 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
     }
 
     @Override
+    public void free() {
+        if (parent != null)
+            parent.free(this);
+    }
+
+    @Override
     public FactorValue getValue() {
         return value;
     }
@@ -41,25 +47,43 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
     @Override
     public void setValue(FactorValue value) {
         this.value = value;
+        this.value.setParent(this);
     }
 
     @Override
     public boolean group(Groupable groupable) {
 
-        if (groupable instanceof Term)
-            return false;
+        if (this.value instanceof Rational) {
 
-        if (getValue() instanceof Rational && groupable.getValue() instanceof Rational)
-            return group(((Rational) this.value), ((Rational) groupable.getValue()));
+            if (groupable instanceof Factor && ((Factor) groupable).value instanceof Rational)
+                return rationalOnFactorRational((Rational) ((Factor) groupable).value);
 
-        if (getValue() instanceof Rational && groupable.getValue() instanceof GroupTerm)
-            return group(((Rational) this.value), ((GroupTerm) groupable.getValue()));
+            if (groupable instanceof Factor && ((Factor) groupable).value instanceof GroupTerm)
+                return rationalOnFactorGroupTerm((GroupTerm) ((Factor) groupable).value);
 
-        if (getValue() instanceof GroupTerm && groupable.getValue() instanceof Rational)
-            return group(((GroupTerm) this.value), ((Rational) groupable.getValue()));
+            if (groupable instanceof Term && ((Term) groupable).value instanceof Rational)
+                return rationalOnTermRational((Rational) ((Term) groupable).value);
 
-        if (getValue() instanceof GroupTerm && groupable.getValue() instanceof GroupTerm)
-            return group(((GroupTerm) this.value), ((GroupTerm) groupable.getValue()));
+            if (groupable instanceof Term && ((Term) groupable).value instanceof GroupFactor)
+                return rationalOnTermGroupFactor((GroupFactor) ((Term) groupable).value);
+
+        }
+
+        if (this.value instanceof GroupTerm) {
+
+            if (groupable instanceof Factor && ((Factor) groupable).value instanceof Rational)
+                return groupTermOnFactorRational((Rational) ((Factor) groupable).value);
+
+            if (groupable instanceof Factor && ((Factor) groupable).value instanceof GroupTerm)
+                return groupTermOnFactorGroupTerm((GroupTerm) ((Factor) groupable).value);
+
+            if (groupable instanceof Term && ((Term) groupable).value instanceof Rational)
+                return groupTermOnTermRational((Rational) ((Term) groupable).value);
+
+            if (groupable instanceof Term && ((Term) groupable).value instanceof GroupFactor)
+                return groupTermOnTermGroupFactor((GroupFactor) ((Term) groupable).value);
+
+        }
 
         return false;
     }
@@ -96,36 +120,111 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
 
-    protected boolean group(Rational value1, Rational value2) {
-        value1.setNumerator(value1.getNumerator() * value2.getNumerator());
-        value1.setDenominator(value1.getDenominator() * value2.getDenominator());
-        value2.getParent().getParent().removeValue(value2.getParent());
+    protected boolean rationalOnFactorRational(Rational value){
+
+        ((Rational) this.value).numerator *= value.numerator;
+        ((Rational) this.value).denominator *= value.denominator;
+
+        value.free();
+
         return true;
     }
 
-    protected boolean group(Rational value1, GroupTerm value2) {
+    protected boolean rationalOnFactorGroupTerm(GroupTerm value){
+
+        Rational rational = ((Rational) this.value).clone();
+        setValue(value);
+
+        for (Term term : (GroupTerm) this.value){
+            if (term.getValue() instanceof GroupFactor){
+                ((GroupFactor) term.getValue()).add(0, new Factor(rational));
+                continue;
+            }
+
+            if (term.getValue() instanceof Rational) {
+                term.setValue(new GroupFactor(
+                        new Factor(rational),
+                        new Factor((Rational) term.getValue())
+                ));
+            }
+        }
+
+        return true;
+    }
+
+    protected boolean groupTermOnFactorRational(Rational value){
+
+        for (Term term : (GroupTerm) this.value){
+            if (term.getValue() instanceof GroupFactor){
+                ((GroupFactor) term.getValue()).add(new Factor(value.clone()));
+                continue;
+            }
+
+            if (term.getValue() instanceof Rational) {
+                term.setValue(new GroupFactor(
+                        new Factor((Rational) term.getValue()),
+                        new Factor(value.clone())
+                ));
+            }
+        }
+        value.free();
+
+        return true;
+    }
+
+    protected boolean groupTermOnFactorGroupTerm(GroupTerm value){
+
+        GroupTerm groupTerm = new GroupTerm();
+
+        for (Term termA : (GroupTerm) this.value) {
+
+            for (Term termB : value) {
+
+                if (termA.value instanceof Rational && termB.value instanceof Rational)
+                    groupTerm.add(
+                            new Term(
+                                    new GroupFactor(
+                                            new Factor((Rational) termA.value),
+                                            new Factor((Rational) termB.value)
+                                    )
+                            )
+
+                    );
+                else if (termA.value instanceof Rational && termB.value instanceof GroupFactor)
+                    groupTerm.add(
+                            new Term(
+                                    // TODO: Completar bien este método
+                            )
+                    );
+
+                groupTerm.add(
+                        new Term(
+                                new GroupFactor(
+
+                                )
+                        )
+                );
+
+            }
+
+        }
 
         return false;
     }
 
-    protected boolean group(GroupTerm value1, Rational value2) {
-        Groupable oldParent = value2.getParent();
-        for (Term term : value1){
-            if (term.getValue() instanceof GroupFactor){
-                ((GroupFactor) term.getValue()).add(new Factor(value2));
-            } else {
-                term.setValue(new GroupFactor(
-                        new Factor((Rational) term.getValue()),
-                        new Factor(value2)
-                ));
-            }
-        }
-        oldParent.getParent().removeValue(value2.getParent());
-        return true;
+    protected boolean rationalOnTermRational(Rational value){
+        return false;
     }
 
-    protected boolean group(GroupTerm value1, GroupTerm value2) {
+    protected boolean rationalOnTermGroupFactor(GroupFactor value){
+        return false;
+    }
 
+    protected boolean groupTermOnTermRational(Rational value){
+        return false;
+    }
+
+    protected boolean groupTermOnTermGroupFactor(GroupFactor value){
         return false;
     }
 

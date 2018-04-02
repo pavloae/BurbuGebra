@@ -9,7 +9,7 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.TermValue;
 public final class Term implements Groupable<GroupTerm, TermValue> {
 
     private GroupTerm parent;
-    private TermValue value;
+    public TermValue value;
 
     public Term() {
         this.value = new Rational(0);
@@ -29,6 +29,12 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     public Term(TermValue value){
         this.value = value;
         this.value.setParent(this);
+    }
+
+    @Override
+    public void free() {
+        if (parent != null)
+            parent.free(this);
     }
 
     @Override

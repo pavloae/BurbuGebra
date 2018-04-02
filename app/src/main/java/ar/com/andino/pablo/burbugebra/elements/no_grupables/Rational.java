@@ -1,31 +1,16 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
+import java.security.acl.Group;
 import java.util.Locale;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public final class Rational implements FactorValue, TermValue {
+public final class Rational implements FactorValue, TermValue, Cloneable {
 
-    public int getNumerator() {
-        return numerator;
-    }
-
-    public void setNumerator(int numerator) {
-        this.numerator = numerator;
-    }
-
-    public int getDenominator() {
-        return denominator;
-    }
-
-    public void setDenominator(int denominator) {
-        this.denominator = denominator;
-    }
-
-    private int numerator;
-    private int denominator;
+    public int numerator;
+    public int denominator;
     private String name;
     private Groupable parent;
 
@@ -55,6 +40,27 @@ public final class Rational implements FactorValue, TermValue {
             throw new ArithmeticException("División por cero");
         this.numerator = numerator;
         this.denominator = denominator;
+    }
+
+    public int getNumerator() {
+        return numerator;
+    }
+
+    public void setNumerator(int numerator) {
+        this.numerator = numerator;
+    }
+
+    public int getDenominator() {
+        return denominator;
+    }
+
+    public void setDenominator(int denominator) {
+        this.denominator = denominator;
+    }
+
+    public void free(){
+        if (parent != null)
+            parent.free();
     }
 
     @Override
@@ -89,11 +95,25 @@ public final class Rational implements FactorValue, TermValue {
 
     @Override
     public void setParent(Factor parent) {
+
         this.parent = parent;
+
     }
 
     @Override
     public void setParent(Term parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public Rational clone() {
+        Rational rational;
+        try {
+            rational = (Rational) super.clone();
+            return rational;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

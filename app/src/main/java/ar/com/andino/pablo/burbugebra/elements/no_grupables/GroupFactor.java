@@ -22,6 +22,12 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
         }
     }
 
+    public void free(Factor value){
+        super.remove(value);
+        if (super.size() == 0)
+            parent.free();
+    }
+
     @Override
     public boolean add(Factor factor) {
         if (!super.add(factor))

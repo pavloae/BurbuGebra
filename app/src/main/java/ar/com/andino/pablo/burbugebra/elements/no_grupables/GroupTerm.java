@@ -22,6 +22,12 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
         }
     }
 
+    public void free(Term value){
+        super.remove(value);
+        if (super.size() == 0)
+            parent.free();
+    }
+
     public void distributive(FactorValue factorValue){
         for (Term term : this){
             Factor factor = new Factor();
@@ -56,11 +62,13 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
     @Override
     public void removeValue(Groupable value) {
-
+        super.remove(value);
     }
 
     @Override
     public void setParent(Factor parent) {
+        if (this.parent != null)
+            this.parent.free();
         this.parent = parent;
     }
 

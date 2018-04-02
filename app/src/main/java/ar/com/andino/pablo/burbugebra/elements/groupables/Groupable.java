@@ -12,5 +12,6 @@ public interface Groupable<P extends NoGroupable, V extends NoGroupable> {
     void setValue(V value);
 
     boolean group(Groupable groupable);
+    void free();
 
 }
