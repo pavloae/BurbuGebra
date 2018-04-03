@@ -32,17 +32,21 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
         this.value.setParent(this);
     }
 
+    @Override
     public void onUpdate(){
 
-        if (parent == null)
+        if (this.parent == null)
             return;
 
+        // Si el Factor solo contiene un Rational nulo para la multiplicación ("1") ó un GroupTerm vacío,
+        // lo quitamos del GroupTerm.
         if (
-                value instanceof Rational && ((Rational) value).numerator == 1 && ((Rational) value).denominator == 1
-                        || value instanceof GroupTerm && ((GroupTerm) value).size() == 0
+                this.value instanceof Rational && ((Rational) this.value).numerator == 1 && ((Rational) this.value).denominator == 1
+                        || this.value instanceof GroupTerm && ((GroupTerm) this.value).size() == 0
                 ) {
-            parent.removeValue(this);
-            parent = null;
+            this.parent.free(this);
+            this.parent = null;
+            this.value = null;
             return;
         }
 
@@ -53,11 +57,11 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
                         && ((GroupTerm) this.value).size() == 1
                         && ((GroupTerm) this.value).get(0).value instanceof Rational
                 ) {
-            this.value = (Rational) ((GroupTerm) this.value).get(0).value;
+            setValue((Rational) ((GroupTerm) this.value).get(0).value);
         }
 
         // Si el Factor contiene un GroupTerm con solo un GroupFactor, agregamos el GroupFactor
-        // al Parent y removemos este Factor del mismo
+        // al Parent y removemos este Term del mismo
         if (
                 this.value instanceof GroupTerm
                         && ((GroupTerm) this.value).size() == 1
@@ -65,9 +69,9 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
                 ) {
             this.parent.addAll(
                     getPositionOnParent(),
-                    (GroupFactor) ((GroupTerm) this.value).get(0).value
+                    ((GroupFactor) ((GroupTerm) this.value).get(0).value).clone()
             );
-            this.parent.removeValue(this);
+            this.parent.free(this);
         }
 
     }
@@ -76,6 +80,8 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
     public void free() {
         if (parent != null)
             parent.free(this);
+        this.parent = null;
+        this.value = null;
     }
 
     @Override
@@ -158,8 +164,8 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
 
     @Override
     public void setParent(GroupFactor parent) {
-        if (this.parent != null)
-            this.parent.remove(this);
+        if (this.parent != null && this.parent != parent)
+            parent.free(this);
         this.parent = parent;
     }
 

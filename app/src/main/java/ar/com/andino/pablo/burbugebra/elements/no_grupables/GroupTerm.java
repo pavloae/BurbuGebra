@@ -1,12 +1,13 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupTerm extends ArrayList<Term> implements FactorValue {
+public class GroupTerm extends ArrayList<Term> implements FactorValue, Cloneable {
 
     private Factor parent;
 
@@ -29,20 +30,7 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
     public void free(Term value){
         super.remove(value);
-        if (super.size() == 0)
-            parent.free();
-    }
-
-    public void distributive(FactorValue factorValue){
-        for (Term term : this){
-            Factor factor = new Factor();
-            if (term.getValue() instanceof Rational){
-                factor.setValue((Rational) term.getValue());
-                term.setValue(new GroupFactor(factor));
-            }
-            ((GroupFactor) term.getValue()).add(0, factor);
-            factor.setParent((GroupFactor) term.getValue());
-        }
+        this.onUpdate();
     }
 
     @Override
@@ -58,6 +46,21 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     public void add(int index, Term term) {
         term.setParent(this);
         super.add(index, term);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Term> groupTerm) {
+        for (Term term : groupTerm)
+            if (term.getParent() != null && term.getParent() != this)
+                term.setParent(this);
+        return super.addAll(groupTerm);
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends Term> groupTerm) {
+        for (Term term : groupTerm)
+            term.setParent(this);
+        return super.addAll(index, groupTerm);
     }
 
     @Override
@@ -88,5 +91,8 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
         return stringBuilder.toString();
     }
 
-
+    @Override
+    public GroupTerm clone() {
+        return (GroupTerm) super.clone();
+    }
 }

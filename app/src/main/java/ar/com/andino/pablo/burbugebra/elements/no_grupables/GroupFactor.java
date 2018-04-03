@@ -7,7 +7,7 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupFactor extends ArrayList<Factor> implements TermValue {
+public class GroupFactor extends ArrayList<Factor> implements TermValue, Cloneable {
 
     private Term parent;
 
@@ -23,14 +23,14 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
         }
     }
 
+    public void onUpdate() {
+        if (super.size() < 2 && this.parent != null)
+            parent.onUpdate();
+    }
+
     public void free(Factor value){
         super.remove(value);
         onUpdate();
-    }
-
-    public void onUpdate() {
-        if (parent != null && super.size() < 2)
-            parent.onUpdate();
     }
 
     @Override
@@ -46,6 +46,20 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
     public void add(int index, Factor factor) {
         factor.setParent(this);
         super.add(index, factor);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Factor> groupFactor) {
+        for (Factor factor : groupFactor)
+            factor.setParent(this);
+        return super.addAll(groupFactor);
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends Factor> groupFactor) {
+        for (Factor factor : groupFactor)
+            factor.setParent(this);
+        return super.addAll(index, groupFactor);
     }
 
     @Override
@@ -74,4 +88,8 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
         return stringBuilder.toString();
     }
 
+    @Override
+    public GroupFactor clone() {
+        return (GroupFactor) super.clone();
+    }
 }

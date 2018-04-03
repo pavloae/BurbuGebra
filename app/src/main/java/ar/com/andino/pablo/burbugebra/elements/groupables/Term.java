@@ -32,43 +32,49 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         this.value.setParent(this);
     }
 
+    @Override
     public void onUpdate(){
 
         if (this.parent == null)
             return;
 
-        // Si el termino solo contiene el nulo para la suma: "0" lo quitamos del grupo
+        // Si el termino solo contiene un Rational nulo para la suma ("0") ó un GroupFactor vacío,
+        // lo quitamos del GroupTerm.
         if (
                 this.value instanceof Rational && ((Rational) this.value).numerator == 0
                         || this.value instanceof GroupFactor && ((GroupFactor) this.value).size() == 0
                 ) {
-            this.parent.removeValue(this);
+            this.parent.free(this);
             this.parent = null;
+            this.value = null;
             return;
         }
 
-        // Si el término contiene un grupo de factores con solo un Rational, apuntamos directamente
-        // al racional desde este término
+        // Si el Term contiene un GroupFactor con solo un Rational, apuntamos directamente
+        // al Rational desde este Term
         if (
                 this.value instanceof GroupFactor
                         && ((GroupFactor) this.value).size() == 1
                         && ((GroupFactor) this.value).get(0).value instanceof Rational
                 ) {
-            this.value = (Rational) ((GroupFactor) this.value).get(0).value;
+            setValue((Rational) ((GroupFactor) this.value).get(0).value);
+            return;
         }
 
-        // Si el término contiene un grupo de factores con solo un GroupTerm, agregamos el GroupTerm
+        // Si el Term contiene un GroupFactor con solo un GroupTerm, agregamos el GroupTerm
         // al Parent y removemos este Term del mismo
         if (
                 this.value instanceof GroupFactor
                         && ((GroupFactor) this.value).size() == 1
                         && ((GroupFactor) this.value).get(0).value instanceof GroupTerm
                 ) {
+            int position = getPositionOnParent();
+            GroupTerm groupTerm = (GroupTerm) ((GroupFactor) this.value).get(0).value;
             this.parent.addAll(
                     getPositionOnParent(),
-                    (GroupTerm) ((GroupFactor) this.value).get(0).value
+                    ((GroupTerm) ((GroupFactor) this.value).get(0).value).clone()
             );
-            this.parent.removeValue(this);
+            this.parent.free(this);
         }
 
     }
@@ -77,6 +83,8 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     public void free() {
         if (parent != null)
             parent.free(this);
+        this.parent = null;
+        this.value = null;
     }
 
     @Override
@@ -87,6 +95,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     @Override
     public void setValue(TermValue value) {
         this.value = value;
+        this.value.setParent(this);
     }
 
     @Override
@@ -158,8 +167,8 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
 
     @Override
     public void setParent(GroupTerm parent) {
-        if (this.parent != null)
-            this.parent.remove(this);
+        if (this.parent != null && this.parent != parent)
+            parent.free(this);
         this.parent = parent;
     }
 
