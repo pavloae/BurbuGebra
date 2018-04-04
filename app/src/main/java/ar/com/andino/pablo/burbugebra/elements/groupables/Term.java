@@ -212,7 +212,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         this.setValue(
                 new GroupFactor(
                         new Factor(termA.clone()),
-                        new Factor(factorB)
+                        new Factor(factorB.clone())
                 )
         );
 
@@ -235,7 +235,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     protected boolean operateOnFactor(GroupFactor termA, GroupTerm factorB){
 
         termA.add(
-                new Factor(factorB)
+                new Factor(factorB.clone())
         );
 
         factorB.getParent().free();
@@ -255,21 +255,27 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
 
     protected boolean operateOnTerm(Rational termA, GroupFactor termB){
 
-        getParent().add(getPositionOnParent()+1, new Term(termB));
+        getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
+
+        termB.getParent().free();
 
         return true;
     }
 
     protected boolean operateOnTerm(GroupFactor termA, Rational termB){
 
-        getParent().add(getPositionOnParent()+1, new Term(termB));
+        getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
+
+        termB.free();
 
         return true;
     }
 
     protected boolean operateOnTerm(GroupFactor termA, GroupFactor termB){
 
-        getParent().add(getPositionOnParent()+1, new Term(termB));
+        getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
+
+        termB.getParent().free();
 
         return true;
     }

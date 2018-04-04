@@ -18,13 +18,13 @@ public class AlgebraUnitTest {
 
         equation = new Equation();
 
-        // 2·(5+8·(-3))+5/2·8/3
+        // (-2)·(5+8·(-3))+5/2·8/3
 
         equation.setLeftMember(
                 new GroupTerm(
                         new Term(
                                 new GroupFactor(
-                                        new Factor(2),
+                                        new Factor(-2),
                                         new Factor(
                                                 new GroupTerm(
                                                         new Term(5),
@@ -52,7 +52,6 @@ public class AlgebraUnitTest {
     @Test
     public void getStringValue() throws Exception {
 
-
         initEquation();
 
         System.out.println(equation.toString());
@@ -70,6 +69,42 @@ public class AlgebraUnitTest {
         f2.group(fg);
 
         System.out.println(equation.toString());
+
+        f2 = ((GroupFactor) equation.getLeftMember().get(0).value).get(0);
+        Factor f5 = ((GroupFactor) equation.getLeftMember().get(0).value).get(1);
+
+        f2.group(f5);
+
+        System.out.println(equation.toString());
+
+        f2 = ((GroupFactor) equation.getLeftMember().get(1).value).get(0);
+        Factor f8 = ((GroupFactor) equation.getLeftMember().get(1).value).get(1);
+
+        f2.group(f8);
+
+        System.out.println(equation.toString());
+
+        Factor f16 = ((GroupFactor) equation.getLeftMember().get(1).value).get(0);
+        Factor f_3 = ((GroupFactor) equation.getLeftMember().get(1).value).get(1);
+
+        f16.group(f_3);
+
+        System.out.println(equation.toString());
+
+        Term t10 = equation.getLeftMember().get(0);
+        Term t_48 = equation.getLeftMember().get(1);
+
+        t10.group(t_48);
+
+        System.out.println(equation.toString());
+
+        Term t_38 = equation.getLeftMember().get(0);
+        Term t40_6 = equation.getLeftMember().get(1);
+
+        t_38.group(t40_6);
+
+        System.out.println(equation.toString());
+
 
     }
 

@@ -228,9 +228,8 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
             }
 
             if (term.getValue() instanceof GroupFactor){
-                GroupFactor groupFactor = new GroupFactor(
-                        new Factor(factorA.clone())
-                );
+                GroupFactor groupFactor = new GroupFactor();
+                groupFactor.add(new Factor(factorA.clone()));
                 groupFactor.addAll(((GroupFactor) term.getValue()).clone());
 
                 ((GroupTerm) this.value).add(new Term(groupFactor));
@@ -238,7 +237,7 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
 
         }
 
-        factorB.free();
+        factorB.getParent().free();
 
         return true;
     }
@@ -250,8 +249,8 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
             if (term.getValue() instanceof Rational) {
                 term.setValue(
                         new GroupFactor(
-                                new Factor(factorB.clone()),
-                                new Factor((Rational) term.getValue())
+                                new Factor((Rational) term.getValue()),
+                                new Factor(factorB.clone())
                         )
                 );
             }
@@ -278,14 +277,14 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
                 GroupFactor groupFactor = new GroupFactor();
 
                 if (termA.value instanceof Rational)
-                    groupFactor.add(new Factor((Rational) termA.value));
+                    groupFactor.add(new Factor(((Rational) termA.value).clone()));
                 else
-                    groupFactor.addAll((GroupFactor) termA.value);
+                    groupFactor.addAll(((GroupFactor) termA.value).clone());
 
                 if (termB.value instanceof Rational)
-                    groupFactor.add(new Factor((Rational) termB.value));
+                    groupFactor.add(new Factor(((Rational) termB.value).clone()));
                 else
-                    groupFactor.addAll((GroupFactor) termB.value);
+                    groupFactor.addAll(((GroupFactor) termB.value).clone());
 
                 groupTerm.add(
                         new Term(
@@ -298,9 +297,11 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
         }
 
         this.setValue(groupTerm);
+
         factorB.getParent().free();
 
         return true;
+
     }
 
     protected boolean operateOnTerm(Rational factorA, Rational termB){

@@ -33,11 +33,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
         this.onUpdate();
     }
 
-    public void free() {
-        super.clear();
-        this.onUpdate();
-    }
-
     @Override
     public boolean add(Term term) {
         if (!super.add(term))
@@ -81,8 +76,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
     @Override
     public void setParent(Factor parent) {
-        if (this.parent != null)
-            this.parent.free();
         this.parent = parent;
     }
 

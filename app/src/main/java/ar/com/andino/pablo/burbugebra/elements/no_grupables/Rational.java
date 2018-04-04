@@ -97,15 +97,11 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     @Override
     public void setParent(Factor parent) {
-        if (this.parent != null)
-            this.parent.free();
         this.parent = parent;
     }
 
     @Override
     public void setParent(Term parent) {
-        if (this.parent != null)
-            this.parent.free();
         this.parent = parent;
     }
 

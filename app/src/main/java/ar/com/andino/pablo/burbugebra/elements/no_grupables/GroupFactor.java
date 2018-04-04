@@ -33,11 +33,6 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
         onUpdate();
     }
 
-    public void free() {
-        super.clear();
-        this.onUpdate();
-    }
-
     @Override
     public boolean add(Factor factor) {
         if (!super.add(factor))
