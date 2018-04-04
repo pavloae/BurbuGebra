@@ -1,6 +1,5 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
-import java.security.acl.Group;
 import java.util.Locale;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
@@ -11,7 +10,7 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     public int numerator;
     public int denominator;
-    private String name;
+    public String name;
     private Groupable parent;
 
     public Rational(int numerator) {
@@ -20,10 +19,7 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
     }
 
     public Rational(int numerator, int denominator) throws ArithmeticException {
-        if (denominator == 0)
-            throw new ArithmeticException("División por cero");
-        this.numerator = numerator;
-        this.denominator = denominator;
+        setValue(numerator, denominator);
     }
 
     public Rational(String name) {
@@ -39,22 +35,6 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
         if (denominator == 0)
             throw new ArithmeticException("División por cero");
         this.numerator = numerator;
-        this.denominator = denominator;
-    }
-
-    public int getNumerator() {
-        return numerator;
-    }
-
-    public void setNumerator(int numerator) {
-        this.numerator = numerator;
-    }
-
-    public int getDenominator() {
-        return denominator;
-    }
-
-    public void setDenominator(int denominator) {
         this.denominator = denominator;
     }
 
@@ -91,17 +71,12 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
     }
 
     @Override
-    public void removeValue(Groupable value) {
-
-    }
-
-    @Override
-    public void setParent(Factor parent) {
+    public void setParent(Term parent) {
         this.parent = parent;
     }
 
     @Override
-    public void setParent(Term parent) {
+    public void setParent(Factor parent) {
         this.parent = parent;
     }
 

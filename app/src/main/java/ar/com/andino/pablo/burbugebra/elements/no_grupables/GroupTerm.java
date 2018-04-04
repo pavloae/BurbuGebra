@@ -1,15 +1,15 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
-import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
-    public Factor parent;
+    private Factor parent;
 
     public GroupTerm() {
         super();
@@ -17,15 +17,7 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
     public GroupTerm(Term... terms) {
         super();
-        for (Term term : terms){
-            term.setParent(this);
-            super.add(term);
-        }
-    }
-
-    public void onUpdate() {
-        if (parent != null && super.size() < 2)
-            parent.onUpdate();
+        addAll(Arrays.asList(terms));
     }
 
     public void free(Term value){
@@ -33,26 +25,30 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
         this.onUpdate();
     }
 
+    private void onUpdate() {
+        if (this.parent != null && super.size() < 2)
+            this.parent.onUpdate();
+    }
+
     @Override
     public boolean add(Term term) {
-        if (!super.add(term))
+        if (super.add(term))
+            term.setParent(this);
+        else
             return false;
-
-        term.setParent(this);
         return true;
     }
 
     @Override
     public void add(int index, Term term) {
-        term.setParent(this);
         super.add(index, term);
+        term.setParent(this);
     }
 
     @Override
     public boolean addAll(Collection<? extends Term> groupTerm) {
         for (Term term : groupTerm)
-            if (term.getParent() != null && term.getParent() != this)
-                term.setParent(this);
+            term.setParent(this);
         return super.addAll(groupTerm);
     }
 
@@ -64,27 +60,21 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     }
 
     @Override
-    public Factor getParent() {
-        return parent;
-    }
-
-    @Override
-    public void removeValue(Groupable value) {
-        super.remove(value);
-        onUpdate();
-    }
-
-    @Override
     public void setParent(Factor parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public Factor getParent() {
+        return parent;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (int position = 0; position < size(); position++)
-            stringBuilder.append(get(position).toString());
+        for (Term term : this)
+            stringBuilder.append(term.toString());
 
         return stringBuilder.toString();
     }

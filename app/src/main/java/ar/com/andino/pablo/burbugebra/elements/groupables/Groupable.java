@@ -1,18 +1,21 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
+import java.util.ArrayList;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.NoGroupable;
 
-public interface Groupable<P extends NoGroupable, V extends NoGroupable> {
+public interface Groupable<P extends ArrayList<? extends Groupable>, V extends NoGroupable> {
 
-    P getParent();
+    void setValue(V value);
+    V getValue();
+
     void setParent(P parent);
+    P getParent();
+
     int getPositionOnParent();
 
-    V getValue();
-    void setValue(V value);
+    boolean group(Term factor);
+    boolean group(Factor factor);
 
-    boolean group(Groupable groupable);
     void free();
-    void onUpdate();
 
 }

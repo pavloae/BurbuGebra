@@ -12,9 +12,9 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
 public class AlgebraUnitTest {
 
-    Equation equation;
+    private Equation equation;
 
-    public void initEquation(){
+    private void initEquation(){
 
         equation = new Equation();
 
@@ -27,7 +27,34 @@ public class AlgebraUnitTest {
                                         new Factor(-2),
                                         new Factor(
                                                 new GroupTerm(
-                                                        new Term(5),
+                                                        new Term(23),
+                                                        new Term(
+                                                                new GroupFactor(
+                                                                        new Factor(8),
+                                                                        new Factor(-3)
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        ),
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(5,2),
+                                        new Factor(8, 3)
+                                )
+                        )
+                )
+        );
+
+        equation.setRightMember(
+                new GroupTerm(
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(-2),
+                                        new Factor(
+                                                new GroupTerm(
+                                                        new Term(23),
                                                         new Term(
                                                                 new GroupFactor(
                                                                         new Factor(8),
@@ -50,60 +77,64 @@ public class AlgebraUnitTest {
     }
 
     @Test
-    public void getStringValue() throws Exception {
+    public void getStringValue() {
+
+        long initTime = System.currentTimeMillis();
 
         initEquation();
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
 
         Factor f5_2 = ((GroupFactor) equation.getLeftMember().get(1).value).get(0);
         Factor f8_3 = ((GroupFactor) equation.getLeftMember().get(1).value).get(1);
 
         f5_2.group(f8_3);
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
 
         Factor f2 = ((GroupFactor) equation.getLeftMember().get(0).value).get(0);
         Factor fg = ((GroupFactor) equation.getLeftMember().get(0).value).get(1);
 
         f2.group(fg);
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
 
         f2 = ((GroupFactor) equation.getLeftMember().get(0).value).get(0);
         Factor f5 = ((GroupFactor) equation.getLeftMember().get(0).value).get(1);
 
         f2.group(f5);
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
 
         f2 = ((GroupFactor) equation.getLeftMember().get(1).value).get(0);
         Factor f8 = ((GroupFactor) equation.getLeftMember().get(1).value).get(1);
 
         f2.group(f8);
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
 
         Factor f16 = ((GroupFactor) equation.getLeftMember().get(1).value).get(0);
         Factor f_3 = ((GroupFactor) equation.getLeftMember().get(1).value).get(1);
 
-        f16.group(f_3);
-
-        System.out.println(equation.toString());
+        if (f16.group(f_3))
+            System.out.println(equation);
 
         Term t10 = equation.getLeftMember().get(0);
         Term t_48 = equation.getLeftMember().get(1);
 
-        t10.group(t_48);
-
-        System.out.println(equation.toString());
+        if (t10.group(t_48))
+            System.out.println(equation);
 
         Term t_38 = equation.getLeftMember().get(0);
         Term t40_6 = equation.getLeftMember().get(1);
 
         t_38.group(t40_6);
 
-        System.out.println(equation.toString());
+        System.out.println(equation);
+
+        System.out.println(equation.getRightMember());
+
+        System.out.println("Time: " + (System.currentTimeMillis() - initTime) + " ms");
 
 
     }
