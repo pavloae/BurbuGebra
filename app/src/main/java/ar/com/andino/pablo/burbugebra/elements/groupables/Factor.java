@@ -1,5 +1,6 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
+import java.util.Collection;
 import java.util.Locale;
 
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.FactorValue;
@@ -96,6 +97,48 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
     }
 
     @Override
+    public GroupFactor getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(GroupFactor parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public int getPositionOnParent() {
+        if (parent == null)
+            return -1;
+        return parent.indexOf(this);
+    }
+
+    @Override
+    public String toString() {
+        if (value == null)
+            return "";
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (getPositionOnParent() > 0)
+            stringBuilder.append("·");
+
+        if (value instanceof GroupTerm && getPositionOnParent() > 0)
+            stringBuilder.append("(%s)");
+        else
+            stringBuilder.append("%s");
+
+        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
+    }
+
+    @Override
+    protected Factor clone() throws CloneNotSupportedException {
+        Factor factor = (Factor) super.clone();
+        factor.setParent(null);
+        return factor;
+    }
+
+    @Override
     public boolean group(Groupable groupable) {
 
         if (this.value instanceof Rational) {
@@ -157,38 +200,6 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
         return false;
     }
 
-    @Override
-    public GroupFactor getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(GroupFactor parent) {
-        if (this.parent != null && this.parent != parent)
-            parent.free(this);
-        this.parent = parent;
-    }
-
-    @Override
-    public int getPositionOnParent() {
-        return parent.indexOf(this);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (getPositionOnParent() > 0)
-            stringBuilder.append("·");
-
-        if (value instanceof GroupTerm && getPositionOnParent() > 0)
-            stringBuilder.append("(%s)");
-        else
-            stringBuilder.append("%s");
-
-        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
-    }
-
     protected boolean operateOnFactor(Rational factorA, Rational factorB){
 
         factorA.numerator *= factorB.numerator;
@@ -201,25 +212,33 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
 
     protected boolean operateOnFactor(Rational factorA, GroupTerm factorB){
 
+        this.value = new GroupTerm();
+
         for (Term term : factorB){
 
-            if (term.getValue() instanceof GroupFactor){
-                ((GroupFactor) term.getValue()).add(0, new Factor(factorA.clone()));
-                continue;
-            }
-
             if (term.getValue() instanceof Rational) {
-                term.setValue(
-                        new GroupFactor(
-                                new Factor(factorA.clone()),
-                                new Factor((Rational) term.getValue())
+                ((GroupTerm) this.value).add(
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(factorA.clone()),
+                                        new Factor(((Rational) term.getValue()).clone())
+                                        )
                         )
                 );
             }
 
+            if (term.getValue() instanceof GroupFactor){
+                GroupFactor groupFactor = new GroupFactor(
+                        new Factor(factorA.clone())
+                );
+                groupFactor.addAll(((GroupFactor) term.getValue()).clone());
+
+                ((GroupTerm) this.value).add(new Term(groupFactor));
+            }
+
         }
 
-        this.setValue(factorB);
+        factorB.free();
 
         return true;
     }
@@ -228,19 +247,19 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
 
         for (Term term : factorA){
 
-            if (term.getValue() instanceof GroupFactor){
-                ((GroupFactor) term.getValue()).add(new Factor(factorB.clone()));
-                continue;
-            }
-
             if (term.getValue() instanceof Rational) {
                 term.setValue(
                         new GroupFactor(
-                                new Factor((Rational) term.getValue()),
-                                new Factor(factorB.clone())
+                                new Factor(factorB.clone()),
+                                new Factor((Rational) term.getValue())
                         )
                 );
             }
+
+            if (term.getValue() instanceof GroupFactor){
+                ((GroupFactor) term.getValue()).add(new Factor(factorB.clone()));
+            }
+
         }
 
         factorB.free();
@@ -299,5 +318,4 @@ public class Factor implements Groupable<GroupFactor, FactorValue> {
     protected boolean operateOnTerm(GroupTerm factorA, GroupFactor termB){
         return false;
     }
-
 }

@@ -99,6 +99,43 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     }
 
     @Override
+    public GroupTerm getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(GroupTerm parent) {
+        if (this.parent != null && this.parent != parent)
+            parent.free(this);
+        this.parent = parent;
+    }
+
+    @Override
+    public int getPositionOnParent() {
+        if (parent == null)
+            return -1;
+        return parent.indexOf(this);
+    }
+
+    @Override
+    public String toString() {
+        if (value == null)
+            return "";
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (getPositionOnParent() > 0)
+            stringBuilder.append("+");
+
+        if (this.value instanceof GroupTerm && parent != null && !parent.isEmpty())
+            stringBuilder.append("(%s)");
+        else
+            stringBuilder.append("%s");
+
+        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
+    }
+
+    @Override
     public boolean group(Groupable groupable) {
 
         if (this.value instanceof Rational) {
@@ -158,38 +195,6 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         }
 
         return false;
-    }
-
-    @Override
-    public GroupTerm getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(GroupTerm parent) {
-        if (this.parent != null && this.parent != parent)
-            parent.free(this);
-        this.parent = parent;
-    }
-
-    @Override
-    public int getPositionOnParent() {
-        return parent.indexOf(this);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (getPositionOnParent() > 0)
-            stringBuilder.append("+");
-
-        if (this.value instanceof GroupTerm && parent.size() > 0)
-            stringBuilder.append("(%s)");
-        else
-            stringBuilder.append("%s");
-
-        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
 
     protected boolean operateOnFactor(Rational termA, Rational factorB){

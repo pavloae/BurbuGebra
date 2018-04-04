@@ -112,7 +112,9 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
     @Override
     public Rational clone() {
         try {
-            return (Rational) super.clone();
+            Rational rational = (Rational) super.clone();
+            rational.setParent((Term) null);
+            return rational;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
             return null;

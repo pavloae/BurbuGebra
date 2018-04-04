@@ -7,9 +7,9 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupTerm extends ArrayList<Term> implements FactorValue, Cloneable {
+public class GroupTerm extends ArrayList<Term> implements FactorValue {
 
-    private Factor parent;
+    public Factor parent;
 
     public GroupTerm() {
         super();
@@ -30,6 +30,11 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, Cloneable
 
     public void free(Term value){
         super.remove(value);
+        this.onUpdate();
+    }
+
+    public void free() {
+        super.clear();
         this.onUpdate();
     }
 
@@ -93,6 +98,8 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, Cloneable
 
     @Override
     public GroupTerm clone() {
-        return (GroupTerm) super.clone();
+        GroupTerm groupTerm = (GroupTerm) super.clone();
+        groupTerm.setParent(null);
+        return groupTerm;
     }
 }
