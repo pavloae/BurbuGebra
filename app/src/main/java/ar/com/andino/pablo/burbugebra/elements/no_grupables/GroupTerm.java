@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupTerm extends ArrayList<Term> implements FactorValue {
+public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupable {
 
-    private Factor parent;
+    private GroupTermParent parent;
 
     public GroupTerm() {
         super();
@@ -26,8 +29,21 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     }
 
     private void onUpdate() {
+
+        // Si es el GroupTerm de un miembro de la ecuación y ya no tiene elementos...
+        if (this.parent instanceof Equation && super.size() == 0)
+            super.add(new Term());
+
+        // Si es el GroupTerm de la ecuación y su único elemento es un solo Term con un GroupFactor
+        else if (this.parent instanceof Equation && super.size() == 1 && super.get(0).value instanceof GroupFactor)
+            this.parent.onUpdate();
+
         if (this.parent != null && super.size() < 2)
             this.parent.onUpdate();
+    }
+
+    public GroupTermParent getParent() {
+        return parent;
     }
 
     @Override
@@ -62,11 +78,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue {
     @Override
     public void setParent(Factor parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public Factor getParent() {
-        return parent;
     }
 
     @Override

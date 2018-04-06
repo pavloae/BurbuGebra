@@ -1,7 +1,8 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
-public interface Groupable {
+public interface GroupParent {
 
+    void onUpdate();
     void free();
 
 }

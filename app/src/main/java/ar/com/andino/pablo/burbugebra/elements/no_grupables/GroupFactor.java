@@ -5,11 +5,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupFactor extends ArrayList<Factor> implements TermValue {
+public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroupable {
 
-    private Term parent;
+    private GroupFactorParent parent;
 
     public GroupFactor() {
         super();
@@ -28,6 +29,10 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
     private void onUpdate() {
         if (this.parent != null && super.size() < 2)
             this.parent.onUpdate();
+    }
+
+    public GroupFactorParent getParent() {
+        return parent;
     }
 
     @Override
@@ -65,11 +70,6 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
     }
 
     @Override
-    public Term getParent() {
-        return parent;
-    }
-
-    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -85,4 +85,5 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue {
         groupFactor.setParent(null);
         return groupFactor;
     }
+
 }

@@ -1,7 +1,4 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
-public interface Groupable {
-
-    void free();
-
+public interface GroupTermParent extends GroupParent {
 }

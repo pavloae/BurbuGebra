@@ -6,11 +6,15 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.TermValue;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.Value;
 
-public final class Term implements Groupable<GroupTerm, TermValue> {
+public final class Term implements GroupFactorParent, Groupable, Cloneable {
 
     private GroupTerm parent;
+
     public TermValue value;
+
+    private int operation = 1;
 
     public Term() {
         this.value = new Rational(0);
@@ -27,11 +31,104 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         this.value.setParent(this);
     }
 
+    public Term(String name) {
+        this.value = new Rational(name);
+        this.value.setParent(this);
+    }
+
     public Term(TermValue value){
         this.value = value;
         this.value.setParent(this);
     }
 
+    public Term switchOperation() {
+        operation *= -1;
+        return this;
+    }
+
+    public void setParent(GroupTerm parent) {
+        this.parent = parent;
+    }
+
+    public GroupTerm getParent() {
+        return parent;
+    }
+
+    public int getPositionOnParent() {
+        if (parent == null)
+            return -1;
+        return parent.indexOf(this);
+    }
+
+    public void setValue(TermValue value) {
+        this.value = value;
+        this.value.setParent(this);
+    }
+
+    public TermValue getValue() {
+        return value;
+    }
+
+    public final boolean group(Factor factor) {
+
+        if (this.value instanceof Rational && factor.value instanceof Rational)
+            return operateOnFactor(
+                    (Rational) this.value,
+                    (Rational) factor.value
+            );
+
+        if (this.value instanceof Rational && factor.value instanceof GroupTerm)
+            return operateOnFactor(
+                    (Rational) this.value,
+                    (GroupTerm) factor.value
+            );
+
+        if (this.value instanceof GroupFactor && factor.value instanceof Rational)
+            return operateOnFactor(
+                    (GroupFactor) this.value,
+                    (Rational) factor.value
+            );
+
+        if (this.value instanceof GroupFactor && factor.value instanceof GroupTerm)
+            return operateOnFactor(
+                    (GroupFactor) this.value,
+                    (GroupTerm) factor.value
+            );
+
+        return false;
+    }
+
+    public final boolean group(Term term) {
+
+        if (this.value instanceof Rational && term.value instanceof Rational)
+            return operateOnTerm(
+                    (Rational) this.value,
+                    (Rational) term.value
+            );
+
+        if (this.value instanceof Rational && term.value instanceof GroupFactor)
+            return operateOnTerm(
+                    (Rational) this.value,
+                    (GroupFactor) term.value
+            );
+
+        if (this.value instanceof GroupFactor && term.value instanceof Rational)
+            return operateOnTerm(
+                    (GroupFactor) this.value,
+                    (Rational) term.value
+            );
+
+        if (this.value instanceof GroupFactor && term.value instanceof GroupFactor)
+            return operateOnTerm(
+                    (GroupFactor) this.value,
+                    (GroupFactor) term.value
+            );
+
+        return false;
+
+    }
+
+    @Override
     public void onUpdate(){
 
         if (this.parent == null)
@@ -79,95 +176,6 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     }
 
     @Override
-    public void setValue(TermValue value) {
-        this.value = value;
-        this.value.setParent(this);
-    }
-
-    @Override
-    public TermValue getValue() {
-        return value;
-    }
-
-    @Override
-    public void setParent(GroupTerm parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public GroupTerm getParent() {
-        return parent;
-    }
-
-    @Override
-    public int getPositionOnParent() {
-        if (parent == null)
-            return -1;
-        return parent.indexOf(this);
-    }
-
-    @Override
-    public final boolean group(Term term) {
-
-        if (this.value instanceof Rational && term.value instanceof Rational)
-            return operateOnTerm(
-                    (Rational) this.value,
-                    (Rational) term.value
-            );
-
-        if (this.value instanceof Rational && term.value instanceof GroupFactor)
-            return operateOnTerm(
-                    (Rational) this.value,
-                    (GroupFactor) term.value
-            );
-
-        if (this.value instanceof GroupFactor && term.value instanceof Rational)
-            return operateOnTerm(
-                    (GroupFactor) this.value,
-                    (Rational) term.value
-            );
-
-        if (this.value instanceof GroupFactor && term.value instanceof GroupFactor)
-            return operateOnTerm(
-                    (GroupFactor) this.value,
-                    (GroupFactor) term.value
-            );
-
-        return false;
-
-    }
-
-    @Override
-    public final boolean group(Factor factor) {
-
-        if (this.value instanceof Rational && factor.value instanceof Rational)
-            return operateOnFactor(
-                    (Rational) this.value,
-                    (Rational) factor.value
-            );
-
-        if (this.value instanceof Rational && factor.value instanceof GroupTerm)
-            return operateOnFactor(
-                    (Rational) this.value,
-                    (GroupTerm) factor.value
-            );
-
-        if (this.value instanceof GroupFactor && factor.value instanceof Rational)
-            return operateOnFactor(
-                    (GroupFactor) this.value,
-                    (Rational) factor.value
-            );
-
-        if (this.value instanceof GroupFactor && factor.value instanceof GroupTerm)
-            return operateOnFactor(
-                    (GroupFactor) this.value,
-                    (GroupTerm) factor.value
-            );
-
-        return false;
-    }
-
-    @Override
     public void free() {
         if (parent != null)
             parent.free(this);
@@ -183,7 +191,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (getPositionOnParent() > 0)
-            stringBuilder.append("+");
+            stringBuilder.append((operation == 1) ? "+" : "-");
 
         if (this.value instanceof GroupTerm && parent != null && !parent.isEmpty())
             stringBuilder.append("(%s)");
@@ -194,7 +202,7 @@ public final class Term implements Groupable<GroupTerm, TermValue> {
     }
 
     @Override
-    protected Term clone() throws CloneNotSupportedException {
+    public Term clone() throws CloneNotSupportedException {
         Term term = (Term) super.clone();
         term.setParent(null);
         return term;

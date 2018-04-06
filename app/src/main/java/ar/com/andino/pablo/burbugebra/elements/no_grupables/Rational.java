@@ -8,10 +8,11 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public final class Rational implements FactorValue, TermValue, Cloneable {
 
+    private Groupable parent;
+
     public int numerator;
     public int denominator;
     public String name;
-    private Groupable parent;
 
     public Rational(int numerator) {
         this.numerator = numerator;
@@ -45,8 +46,15 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
         name = null;
     }
 
+    public Groupable getParent() {
+        return parent;
+    }
+
     @Override
     public String toString() {
+
+        if (name != null)
+            return name;
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -63,11 +71,6 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
                         String.format(Locale.ENGLISH,"%d/%d", numerator, denominator)
         );
 
-    }
-
-    @Override
-    public Groupable getParent() {
-        return parent;
     }
 
     @Override
