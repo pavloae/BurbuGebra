@@ -15,39 +15,67 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
 
     private int operation = 1;
 
+    private boolean invert;
+
     public Factor() {
         this.value = new Rational(1);
-        this.value.setParent(this);
+        ((Rational) this.value).setParent(this);
     }
 
     public Factor(int numerator) {
         this.value = new Rational(numerator);
-        this.value.setParent(this);
+        ((Rational) this.value).setParent(this);
     }
 
     public Factor(int numerator, int denominator) {
         this.value = new Rational(numerator, denominator);
-        this.value.setParent(this);
+        ((Rational) this.value).setParent(this);
     }
 
     public Factor(String name) {
         this.value = new Rational(name);
-        this.value.setParent(this);
+        ((Rational) this.value).setParent(this);
     }
 
     public Factor(FactorValue value){
         this.value = value;
-        this.value.setParent(this);
+        if (value instanceof Rational)
+            ((Rational) this.value).setParent(this);
+        else if (value instanceof GroupTerm)
+            ((GroupTerm) this.value).setParent(this);
     }
 
-    public Factor switchOperation() {
+    public Factor toggleOperation() {
         operation *= -1;
+        return this;
+    }
+
+    @Override
+    public Factor invert() {
+
+        if (this.value instanceof Rational && ((Rational) this.value).numerator != 0) {
+            int numerator = ((Rational) this.value).numerator;
+            ((Rational) this.value).numerator = ((Rational) this.value).denominator;
+            ((Rational) this.value).denominator = numerator;
+        }
+
+        else if (this.value instanceof GroupTerm)
+            invert = (!invert);
+
+        else
+            return this;
+
+        toggleOperation();
+
         return this;
     }
 
     public void setValue(FactorValue value) {
         this.value = value;
-        this.value.setParent(this);
+        if (value instanceof Rational)
+            ((Rational) this.value).setParent(this);
+        else if (value instanceof GroupTerm)
+            ((GroupTerm) this.value).setParent(this);
     }
 
     public FactorValue getValue() {
@@ -126,6 +154,148 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
         return false;
     }
 
+    private boolean operateOnFactor(Rational factorA, Rational factorB){
+
+        factorA.numerator *= factorB.numerator;
+        factorA.denominator *= factorB.denominator;
+
+        factorB.free();
+
+        return true;
+    }
+
+    private boolean operateOnFactor(Rational factorA, GroupTerm factorB){
+
+        this.value = new GroupTerm();
+
+        for (Term term : factorB){
+
+            if (term.getValue() instanceof Rational) {
+                ((GroupTerm) this.value).add(
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(factorA.clone()),
+                                        new Factor(((Rational) term.getValue()).clone())
+                                )
+                        )
+                );
+            }
+
+            if (term.getValue() instanceof GroupFactor){
+                GroupFactor groupFactor = new GroupFactor();
+                groupFactor.add(new Factor(factorA.clone()));
+                groupFactor.addAll(((GroupFactor) term.getValue()).clone());
+
+                ((GroupTerm) this.value).add(new Term(groupFactor));
+            }
+
+        }
+
+        factorB.getParent().free();
+
+        return true;
+    }
+
+    private boolean operateOnFactor(GroupTerm factorA, Rational factorB){
+
+        for (Term term : factorA){
+
+            if (term.getValue() instanceof Rational) {
+                term.setValue(
+                        new GroupFactor(
+                                new Factor((Rational) term.getValue()),
+                                new Factor(factorB.clone())
+                        )
+                );
+            }
+
+            if (term.getValue() instanceof GroupFactor){
+                ((GroupFactor) term.getValue()).add(new Factor(factorB.clone()));
+            }
+
+        }
+
+        factorB.free();
+
+        return true;
+    }
+
+    private boolean operateOnFactor(GroupTerm factorA, GroupTerm factorB){
+
+        GroupTerm groupTerm = new GroupTerm();
+
+        for (Term termA : factorA) {
+
+            for (Term termB : factorB) {
+
+                GroupFactor groupFactor = new GroupFactor();
+
+                if (termA.value instanceof Rational)
+                    groupFactor.add(new Factor(((Rational) termA.value).clone()));
+                else
+                    groupFactor.addAll(((GroupFactor) termA.value).clone());
+
+                if (termB.value instanceof Rational)
+                    groupFactor.add(new Factor(((Rational) termB.value).clone()));
+                else
+                    groupFactor.addAll(((GroupFactor) termB.value).clone());
+
+                groupTerm.add(
+                        new Term(
+                                groupFactor
+                        )
+                );
+
+            }
+
+        }
+
+        this.setValue(groupTerm);
+
+        factorB.getParent().free();
+
+        return true;
+
+    }
+
+    private boolean operateOnTerm(Rational factorA, Rational termB){
+        return false;
+    }
+
+    private boolean operateOnTerm(Rational factorA, GroupFactor termB){
+        return false;
+    }
+
+    private boolean operateOnTerm(GroupTerm factorA, Rational termB){
+        return false;
+    }
+
+    private boolean operateOnTerm(GroupTerm factorA, GroupFactor termB){
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        if (value == null)
+            return "";
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (getPositionOnParent() > 0)
+            stringBuilder.append((operation == 1) ? "·" : ":");
+
+        if (value instanceof GroupTerm && invert)
+            stringBuilder.append("(1/(%s))");
+        else if (value instanceof GroupTerm && !invert)
+            stringBuilder.append("(%s)");
+        else
+            stringBuilder.append("%s");
+
+        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
+    }
+
+    // Interface GroupParent
+
     @Override
     public void onUpdate(){
 
@@ -173,6 +343,8 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
 
     }
 
+    // Interface GroupParent / Groupable
+
     @Override
     public void free() {
         if (parent != null)
@@ -181,149 +353,13 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
         this.value = null;
     }
 
-    @Override
-    public String toString() {
-        if (value == null)
-            return "";
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if (getPositionOnParent() > 0)
-            stringBuilder.append((operation == 1) ? "·" : ":");
-
-        if (value instanceof GroupTerm && getPositionOnParent() > 0)
-            stringBuilder.append("(%s)");
-        else
-            stringBuilder.append("%s");
-
-        return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
-    }
+    // Interface Cloneable
 
     @Override
     public Factor clone() throws CloneNotSupportedException {
         Factor factor = (Factor) super.clone();
         factor.setParent(null);
         return factor;
-    }
-
-    protected boolean operateOnFactor(Rational factorA, Rational factorB){
-
-        factorA.numerator *= factorB.numerator;
-        factorA.denominator *= factorB.denominator;
-
-        factorB.free();
-
-        return true;
-    }
-
-    protected boolean operateOnFactor(Rational factorA, GroupTerm factorB){
-
-        this.value = new GroupTerm();
-
-        for (Term term : factorB){
-
-            if (term.getValue() instanceof Rational) {
-                ((GroupTerm) this.value).add(
-                        new Term(
-                                new GroupFactor(
-                                        new Factor(factorA.clone()),
-                                        new Factor(((Rational) term.getValue()).clone())
-                                        )
-                        )
-                );
-            }
-
-            if (term.getValue() instanceof GroupFactor){
-                GroupFactor groupFactor = new GroupFactor();
-                groupFactor.add(new Factor(factorA.clone()));
-                groupFactor.addAll(((GroupFactor) term.getValue()).clone());
-
-                ((GroupTerm) this.value).add(new Term(groupFactor));
-            }
-
-        }
-
-        factorB.getParent().free();
-
-        return true;
-    }
-
-    protected boolean operateOnFactor(GroupTerm factorA, Rational factorB){
-
-        for (Term term : factorA){
-
-            if (term.getValue() instanceof Rational) {
-                term.setValue(
-                        new GroupFactor(
-                                new Factor((Rational) term.getValue()),
-                                new Factor(factorB.clone())
-                        )
-                );
-            }
-
-            if (term.getValue() instanceof GroupFactor){
-                ((GroupFactor) term.getValue()).add(new Factor(factorB.clone()));
-            }
-
-        }
-
-        factorB.free();
-
-        return true;
-    }
-
-    protected boolean operateOnFactor(GroupTerm factorA, GroupTerm factorB){
-
-        GroupTerm groupTerm = new GroupTerm();
-
-        for (Term termA : factorA) {
-
-            for (Term termB : factorB) {
-
-                GroupFactor groupFactor = new GroupFactor();
-
-                if (termA.value instanceof Rational)
-                    groupFactor.add(new Factor(((Rational) termA.value).clone()));
-                else
-                    groupFactor.addAll(((GroupFactor) termA.value).clone());
-
-                if (termB.value instanceof Rational)
-                    groupFactor.add(new Factor(((Rational) termB.value).clone()));
-                else
-                    groupFactor.addAll(((GroupFactor) termB.value).clone());
-
-                groupTerm.add(
-                        new Term(
-                                groupFactor
-                        )
-                );
-
-            }
-
-        }
-
-        this.setValue(groupTerm);
-
-        factorB.getParent().free();
-
-        return true;
-
-    }
-
-    protected boolean operateOnTerm(Rational factorA, Rational termB){
-        return false;
-    }
-
-    protected boolean operateOnTerm(Rational factorA, GroupFactor termB){
-        return false;
-    }
-
-    protected boolean operateOnTerm(GroupTerm factorA, Rational termB){
-        return false;
-    }
-
-    protected boolean operateOnTerm(GroupTerm factorA, GroupFactor termB){
-        return false;
     }
 
 }

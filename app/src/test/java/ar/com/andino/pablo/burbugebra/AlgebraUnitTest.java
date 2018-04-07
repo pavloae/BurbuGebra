@@ -11,7 +11,6 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
-import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
 public class AlgebraUnitTest {
 
@@ -61,7 +60,7 @@ public class AlgebraUnitTest {
                         new Term(
                                 new GroupFactor(
                                         new Factor(8, 3),
-                                        new Factor(3, 5).switchOperation()
+                                        new Factor(3, 5).toggleOperation()
                                 )
                         )
                 )
@@ -75,6 +74,10 @@ public class AlgebraUnitTest {
         long initTime = System.currentTimeMillis();
 
         initEquation();
+
+        System.out.println(equation);
+
+        ((GroupFactor) ((Term) equation.getLeftMember().get(0)).getValue()).get(1).invert();
 
         System.out.println(equation);
 
@@ -125,7 +128,14 @@ public class AlgebraUnitTest {
 
         System.out.println(equation);
 
-        equation.switchGroupable(equation.getLeftMember().get(0));
+        if(equation.changeMember(equation.getLeftMember().get(0)))
+            System.out.println(equation);
+
+        ((Term) equation.getRightMember().get(2)).invert();
+
+        System.out.println(equation);
+
+        ((GroupFactor)((Term) equation.getRightMember().get(1)).getValue()).get(1).invert();
 
         System.out.println(equation);
 

@@ -32,7 +32,7 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
         this.denominator = 1;
     }
 
-    public void setValue(int numerator, int denominator) throws ArithmeticException{
+    private void setValue(int numerator, int denominator) throws ArithmeticException{
         if (denominator == 0)
             throw new ArithmeticException("División por cero");
         this.numerator = numerator;
@@ -48,6 +48,10 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     public Groupable getParent() {
         return parent;
+    }
+
+    public void simplify() {
+
     }
 
     @Override
@@ -73,15 +77,21 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     }
 
-    @Override
+    // Interface TermValue
+
+    //@Override
     public void setParent(Term parent) {
         this.parent = parent;
     }
 
-    @Override
+    // Interface FactorValue
+
+    //@Override
     public void setParent(Factor parent) {
         this.parent = parent;
     }
+
+    // Interface Cloneable
 
     @Override
     public Rational clone() {

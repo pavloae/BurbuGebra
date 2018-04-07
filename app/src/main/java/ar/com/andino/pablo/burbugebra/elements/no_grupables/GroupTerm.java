@@ -6,13 +6,14 @@ import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupable {
 
-    private GroupTermParent parent;
+    private GroupParent parent;
 
     public GroupTerm() {
         super();
@@ -30,19 +31,21 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
 
     private void onUpdate() {
 
-        // Si es el GroupTerm de un miembro de la ecuación y ya no tiene elementos...
         if (this.parent instanceof Equation && super.size() == 0)
             super.add(new Term());
 
-        // Si es el GroupTerm de la ecuación y su único elemento es un solo Term con un GroupFactor
-        else if (this.parent instanceof Equation && super.size() == 1 && super.get(0).value instanceof GroupFactor)
+        else if (
+                this.parent instanceof Equation
+                        && super.size() == 1
+                        && super.get(0).value instanceof GroupFactor
+                || this.parent instanceof Factor
+                        && super.size() < 2
+                )
             this.parent.onUpdate();
 
-        if (this.parent != null && super.size() < 2)
-            this.parent.onUpdate();
     }
 
-    public GroupTermParent getParent() {
+    public GroupParent getParent() {
         return parent;
     }
 
@@ -76,11 +79,6 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
     }
 
     @Override
-    public void setParent(Factor parent) {
-        this.parent = parent;
-    }
-
-    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -96,4 +94,12 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
         groupTerm.setParent(null);
         return groupTerm;
     }
+
+    // Interface NoGroupable
+
+    @Override
+    public void setParent(GroupParent parent) {
+        this.parent = parent;
+    }
+
 }

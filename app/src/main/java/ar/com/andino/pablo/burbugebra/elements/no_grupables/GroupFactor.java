@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import ar.com.andino.pablo.burbugebra.elements.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroupable {
 
-    private GroupFactorParent parent;
+    private GroupParent parent;
 
     public GroupFactor() {
         super();
@@ -27,11 +29,22 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
     }
 
     private void onUpdate() {
-        if (this.parent != null && super.size() < 2)
+
+        if (this.parent instanceof Equation && super.size() == 0)
+            super.add(new Factor());
+
+        else if (
+                this.parent instanceof Equation
+                        && super.size() == 1
+                        && super.get(0).value instanceof GroupTerm
+                        || this.parent instanceof Term
+                        && super.size() < 2
+                )
             this.parent.onUpdate();
+
     }
 
-    public GroupFactorParent getParent() {
+    public GroupParent getParent() {
         return parent;
     }
 
@@ -65,11 +78,6 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
     }
 
     @Override
-    public void setParent(Term parent) {
-        this.parent = parent;
-    }
-
-    @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -84,6 +92,13 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
         GroupFactor groupFactor = (GroupFactor) super.clone();
         groupFactor.setParent(null);
         return groupFactor;
+    }
+
+    // Interface NoGroupable
+
+    @Override
+    public void setParent(GroupParent parent) {
+        this.parent = parent;
     }
 
 }
