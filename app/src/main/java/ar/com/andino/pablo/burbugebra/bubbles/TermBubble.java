@@ -1,35 +1,85 @@
 package ar.com.andino.pablo.burbugebra.bubbles;
 
-import java.util.ArrayList;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
-public class TermBubble extends Bubble {
+import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-    private OperatorBubble termOperator;
+public class TermBubble extends Term implements InterfazBurbuja {
 
-    ArrayList<FactorBubble> factorBubbles = new ArrayList<>();
-    FractionBubble fractionBubble;
 
-    boolean positive;
-    int selected;
-
-    public TermBubble() {
-        factorBubbles.add(0, new FactorBubble(1));
-        termOperator = new OperatorBubble(OperatorBubble.PLUS);
+    @Override
+    public float getCenterX() {
+        return 0;
     }
 
-    public void agregarFactor(FactorBubble factorBubble, int posicion){
-        factorBubbles.add(posicion, factorBubble);
+    @Override
+    public float getCenterY() {
+        return 0;
     }
 
-    public static TermBubble neutro(){
-        TermBubble termBubble = new TermBubble();
-        termBubble.factorBubbles.add(new FactorBubble(0));
-        return termBubble;
+    @Override
+    public float getRadius() {
+        return 0;
     }
 
-    public void addChar(Character character){
+    @Override
+    public Bitmap getBitmap() {
+        return null;
+    }
+
+    @Override
+    public void setCenterX(float centerX) {
 
     }
 
+    @Override
+    public void setCenterY(float centerY) {
 
+    }
+
+    @Override
+    public void setRadius(float radius) {
+
+    }
+
+    @Override
+    public void setBitmap(Bitmap bitmap) {
+
+    }
+
+    @Override
+    public boolean isTouched(float xCoor, float yCoor) {
+        return false;
+    }
+
+    @Override
+    public boolean isBursted() {
+        return false;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void onDraw(Canvas canvas) {
+
+    }
+
+    @Override
+    public void onPressed() {
+
+    }
+
+    @Override
+    public void onPlop() {
+
+    }
+
+    @Override
+    public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
+
+    }
 }

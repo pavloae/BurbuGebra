@@ -1,18 +1,22 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
+import android.annotation.SuppressLint;
+
+import java.util.HashMap;
 import java.util.Locale;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
-import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public final class Rational implements FactorValue, TermValue, Cloneable {
+public final class Rational implements FactorValue, TermValue {
 
     private Groupable parent;
 
     public int numerator;
     public int denominator;
     public String name;
+    public boolean isVariable;
 
     public Rational(int numerator) {
         this.numerator = numerator;
@@ -25,6 +29,7 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     public Rational(String name) {
         this.name = name;
+        this.isVariable = true;
     }
 
     public void setValue(int numerator) {
@@ -52,12 +57,37 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     public void simplify() {
 
+        HashMap<Integer, Integer> factorNumerator = getPrimeFactors(Math.abs(numerator));
+        HashMap<Integer, Integer> factorDenominator = getPrimeFactors(Math.abs(denominator));
+
+        int mcd = 1;
+
+        for (int fn : factorNumerator.keySet()){
+            for (int fd : factorDenominator.keySet())
+                if (fn == fd)
+                    mcd *= Math.pow(fd, Math.min(factorNumerator.get(fn), factorDenominator.get(fd)));
+        }
+
+        numerator /= mcd;
+        denominator /= mcd;
+
+    }
+
+    public boolean isZero(){
+        return !isVariable && numerator == 0;
+    }
+
+    public void setZero() {
+        this.numerator = 0;
+        this.denominator = 1;
+        this.name = null;
+        this.isVariable = false;
     }
 
     @Override
     public String toString() {
 
-        if (name != null)
+        if (isVariable)
             return name;
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -79,29 +109,62 @@ public final class Rational implements FactorValue, TermValue, Cloneable {
 
     // Interface TermValue
 
-    //@Override
-    public void setParent(Term parent) {
-        this.parent = parent;
+    @Override
+    public void setParent(GroupFactorParent parent) {
+        this.parent = (Groupable) parent;
     }
 
     // Interface FactorValue
 
-    //@Override
-    public void setParent(Factor parent) {
-        this.parent = parent;
+    @Override
+    public void setParent(GroupTermParent parent) {
+        this.parent = (Groupable) parent;
     }
 
     // Interface Cloneable
 
     @Override
-    public Rational clone() {
-        try {
-            Rational rational = (Rational) super.clone();
-            rational.setParent((Term) null);
-            return rational;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Rational clone() throws CloneNotSupportedException {
+
+        Rational rational = (Rational) super.clone();
+        rational.setParent((GroupFactorParent) null);
+        return rational;
+
     }
+
+    private static HashMap<Integer, Integer> getPrimeFactors(int number) {
+
+        @SuppressLint("UseSparseArrays")
+        HashMap<Integer, Integer> primeFactors = new HashMap<>();
+
+        int dividend = number;
+        int divisor = 2;
+        while (dividend > 1){
+            if (dividend % divisor == 0 && !primeFactors.containsKey(divisor)){
+                primeFactors.put(divisor, 1);
+                dividend = dividend / divisor;
+            } else if (dividend % divisor == 0 && primeFactors.get(divisor) > 0) {
+                primeFactors.put(divisor, primeFactors.get(divisor) + 1);
+                dividend = dividend / divisor;
+            }
+            else
+                divisor = getNextPrime(divisor);
+        }
+        return primeFactors;
+    }
+
+    private static int getNextPrime(int downLimit){
+        int nextPrime = downLimit + 1;
+        while (!isPrime(nextPrime))
+            nextPrime++;
+        return nextPrime;
+    }
+
+    private static boolean isPrime(int number) {
+        for (int divisor = 2 ; divisor <= (number / 2) ; divisor++)
+            if (number % divisor == 0)
+                return false;
+        return true;
+    }
+
 }

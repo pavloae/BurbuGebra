@@ -93,6 +93,11 @@ public abstract class Bubble implements InterfazBurbuja {
     }
 
     @Override
+    public boolean isBursted() {
+        return isBursted;
+    }
+
+    @Override
     public void onDraw(Canvas canvas) {
         if (getBitmap() != null && !isBursted)
             canvas.drawBitmap(bitmap, left, top, null);
@@ -108,6 +113,7 @@ public abstract class Bubble implements InterfazBurbuja {
         isBursted = true;
     }
 
+    @Override
     public void update(){
         left = (int) (getCenterX() - getRadius());
         top = (int) (getCenterY() - getRadius());
@@ -122,6 +128,7 @@ public abstract class Bubble implements InterfazBurbuja {
         this.isBursted = isBursted;
     }
 
+    @Override
     public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
 
         if (bitmap == null || getRadius() <= 0 || getBitmap() == null)

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ar.com.andino.pablo.burbugebra.elements.Equation;
@@ -11,6 +12,7 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 
 public class AlgebraUnitTest {
 
@@ -135,12 +137,27 @@ public class AlgebraUnitTest {
 
         System.out.println(equation);
 
-        ((GroupFactor)((Term) equation.getRightMember().get(1)).getValue()).get(1).invert();
+        ((GroupFactor) ((Term) equation.getRightMember().get(1)).getValue()).get(0).group(
+                ((GroupFactor) ((Term) equation.getRightMember().get(1)).getValue()).get(1)
+        );
+
+        System.out.println(equation);
+
+        ((Term) equation.getRightMember().get(1)).group(
+                equation.getRightMember().get(2)
+        );
+
+        System.out.println(equation);
+
+        ((Rational) ((Term) equation.getRightMember().get(1)).getValue()).simplify();
+
+        System.out.println(equation);
+
+        ((Term) equation.getRightMember().get(1)).invert();
 
         System.out.println(equation);
 
         System.out.println("Time: " + (System.currentTimeMillis() - initTime) + " ms");
-
 
     }
 
@@ -181,6 +198,43 @@ public class AlgebraUnitTest {
         System.out.println(arrayList.size());
 
         System.out.println(12/6/2);
+
+
+    }
+
+    @Test
+    public void cloneElement() throws Exception {
+
+        Rational rational1 = new Rational(2, 3);
+
+        Term term1 = new Term(rational1);
+
+        Assert.assertTrue(rational1.getParent() == term1);
+
+        Term term2 = new Term((Rational) rational1.clone());
+
+        Assert.assertTrue(term2.value != rational1);
+
+        Assert.assertTrue(((Rational) term2.value).getParent() != rational1.getParent());
+
+        GroupTerm groupTerm = new GroupTerm(term1);
+        groupTerm.add(term1.clone());
+
+        Assert.assertTrue(groupTerm.size()==2);
+
+        GroupTerm clone = groupTerm.clone();
+
+        Assert.assertTrue(groupTerm.get(0) == clone.get(0));
+
+    }
+
+    @Test
+    public void xorTest() throws Exception {
+
+        System.out.println(true ^ false);
+        System.out.println(true ^ true);
+        System.out.println(false ^ false);
+        System.out.println(false ^ true);
 
 
     }

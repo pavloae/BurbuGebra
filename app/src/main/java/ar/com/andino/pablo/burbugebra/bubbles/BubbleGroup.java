@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BubbleGroup<T extends Bubble> {
+public class BubbleGroup<T extends InterfazBurbuja> {
 
     private List<T> burbujas = new ArrayList<>();
     private List<T> explotadas = new ArrayList<>();
@@ -31,7 +31,7 @@ public class BubbleGroup<T extends Bubble> {
     synchronized public void removeBursted() {
         explotadas.clear();
         for (position = 0; position < burbujas.size(); position++)
-            if (burbujas.get(position).isBursted)
+            if (burbujas.get(position).isBursted())
                 explotadas.add(burbujas.get(position));
         burbujas.removeAll(explotadas);
     }

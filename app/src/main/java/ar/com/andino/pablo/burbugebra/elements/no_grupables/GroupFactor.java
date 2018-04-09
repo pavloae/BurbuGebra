@@ -12,7 +12,7 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroupable {
 
-    private GroupParent parent;
+    private GroupFactorParent parent;
 
     public GroupFactor() {
         super();
@@ -48,8 +48,29 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
         return parent;
     }
 
+    public Rational getCoeficient() {
+        if (
+                size() == 2
+                        && get(0).value instanceof Rational
+                        && get(1).value instanceof Rational
+                        && (
+                                ((Rational) get(0).value).isVariable
+                                        ^ ((Rational) get(1).value).isVariable
+                )
+                )
+            return (((Rational) get(0).value).isVariable) ?
+                    (Rational) get(1).value :
+                    (Rational) get(0).value;
+
+        return null;
+    }
+
     @Override
     public boolean add(Factor factor) {
+
+        if (super.size() == 0 && factor.operation == -1)
+            factor.invert();
+
         if (super.add(factor))
             factor.setParent(this);
         else
@@ -59,6 +80,10 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
     @Override
     public void add(int index, Factor factor) {
+
+        if (index == 0 && factor.operation == -1)
+            factor.invert();
+
         super.add(index, factor);
         factor.setParent(this);
     }
@@ -89,15 +114,21 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
     @Override
     public GroupFactor clone() {
+
         GroupFactor groupFactor = (GroupFactor) super.clone();
+
         groupFactor.setParent(null);
+
+        for (Factor factor : groupFactor)
+            factor.setParent(groupFactor);
+
         return groupFactor;
     }
 
-    // Interface NoGroupable
+    // Interface TermValue
 
     @Override
-    public void setParent(GroupParent parent) {
+    public void setParent(GroupFactorParent parent) {
         this.parent = parent;
     }
 

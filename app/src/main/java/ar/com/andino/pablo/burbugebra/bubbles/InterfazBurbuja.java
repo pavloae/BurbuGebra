@@ -23,10 +23,16 @@ public interface InterfazBurbuja {
 
     boolean isTouched(float xCoor, float yCoor);
 
+    boolean isBursted();
+
+    void update();
+
     void onDraw(Canvas canvas);
 
     void onPressed();
 
     void onPlop();
+
+    void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble);
 
 }

@@ -3,9 +3,9 @@ package ar.com.andino.pablo.burbugebra.bubbles;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.Equation;
 
-public class FactorBubble extends Factor implements InterfazBurbuja {
+public class EquationBubble extends Equation implements InterfazBurbuja {
 
 
     @Override
@@ -65,7 +65,6 @@ public class FactorBubble extends Factor implements InterfazBurbuja {
 
     @Override
     public void onDraw(Canvas canvas) {
-
     }
 
     @Override

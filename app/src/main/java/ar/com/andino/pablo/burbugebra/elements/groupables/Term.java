@@ -6,9 +6,8 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.TermValue;
-import ar.com.andino.pablo.burbugebra.elements.no_grupables.Value;
 
-public final class Term implements GroupFactorParent, Groupable, Cloneable {
+public class Term implements GroupFactorParent, Groupable, Cloneable {
 
     private GroupTerm parent;
 
@@ -18,30 +17,30 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
 
     public Term() {
         this.value = new Rational(0);
-        ((Rational) this.value).setParent(this);
+        this.value.setParent(this);
     }
 
     public Term(int numerator) {
         this.value = new Rational(numerator);
-        ((Rational) this.value).setParent(this);
+        this.value.setParent(this);
     }
 
     public Term(int numerator, int denominator) {
         this.value = new Rational(numerator, denominator);
-        ((Rational) this.value).setParent(this);
+        this.value.setParent(this);
     }
 
     public Term(String name) {
         this.value = new Rational(name);
-        ((Rational) this.value).setParent(this);
+        this.value.setParent(this);
     }
 
     public Term(TermValue value){
         this.value = value;
         if (value instanceof Rational)
-            ((Rational) this.value).setParent(this);
+            this.value.setParent(this);
         else if (value instanceof GroupFactor)
-            ((GroupFactor) this.value).setParent(this);
+            this.value.setParent(this);
     }
 
     public Term toggleOperation() {
@@ -66,8 +65,9 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
         return this;
     }
 
-    public void setParent(GroupTerm parent) {
+    public Term setParent(GroupTerm parent) {
         this.parent = parent;
+        return this;
     }
 
     public GroupTerm getParent() {
@@ -83,16 +83,32 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
     public void setValue(TermValue value) {
         this.value = value;
         if (value instanceof Rational)
-            ((Rational) this.value).setParent(this);
+            this.value.setParent(this);
         else if (value instanceof GroupFactor)
-            ((GroupFactor) this.value).setParent(this);
+            this.value.setParent(this);
     }
 
     public TermValue getValue() {
         return value;
     }
 
-    public final boolean group(Factor factor) {
+    public final boolean group(Groupable groupable) {
+
+        try {
+            if (groupable instanceof Factor)
+                return group((Factor) groupable);
+
+            return groupable instanceof Term && group((Term) groupable);
+
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+
+    }
+
+    private boolean group(Factor factor) throws CloneNotSupportedException {
 
         if (this.value instanceof Rational && factor.value instanceof Rational)
             return operateOnFactor(
@@ -121,7 +137,7 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
         return false;
     }
 
-    public final boolean group(Term term) {
+    private boolean group(Term term) throws CloneNotSupportedException {
 
         if (this.value instanceof Rational && term.value instanceof Rational)
             return operateOnTerm(
@@ -161,29 +177,25 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
         return true;
     }
 
-    private boolean operateOnFactor(Rational termA, GroupTerm factorB){
-
+    private boolean operateOnFactor(Rational termA, GroupTerm factorB) throws CloneNotSupportedException {
         this.setValue(
                 new GroupFactor(
                         new Factor(termA.clone()),
                         new Factor(factorB.clone())
                 )
         );
-
         factorB.getParent().free();
-
         return true;
     }
 
-    private boolean operateOnFactor(GroupFactor termA, Rational factorB){
+    private boolean operateOnFactor(GroupFactor termA, Rational factorB) throws CloneNotSupportedException {
 
         termA.add(
                 new Factor(factorB.clone())
         );
-
         factorB.free();
-
         return true;
+
     }
 
     private boolean operateOnFactor(GroupFactor termA, GroupTerm factorB){
@@ -198,6 +210,9 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
     }
 
     private boolean operateOnTerm(Rational termA, Rational termB){
+
+        if (termA.isVariable || termB.isVariable)
+            return false;
 
         termA.numerator = termA.numerator * termB.denominator + termA.denominator * termB.numerator;
         termA.denominator = termA.denominator * termB.denominator;
@@ -216,16 +231,16 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
         return true;
     }
 
-    private boolean operateOnTerm(GroupFactor termA, Rational termB){
+    private boolean operateOnTerm(GroupFactor termA, Rational termB) throws CloneNotSupportedException{
 
         getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
-
         termB.free();
-
         return true;
     }
 
-    private boolean operateOnTerm(GroupFactor termA, GroupFactor termB){
+    private boolean operateOnTerm(GroupFactor termA, GroupFactor termB) {
+
+        if (termA.getCoeficient() != null )
 
         getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
 
@@ -315,9 +330,14 @@ public final class Term implements GroupFactorParent, Groupable, Cloneable {
 
     @Override
     public Term clone() throws CloneNotSupportedException {
+
         Term term = (Term) super.clone();
+
         term.setParent(null);
+        term.value.setParent(term);
+
         return term;
+
     }
 
 }
