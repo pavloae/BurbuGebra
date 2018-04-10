@@ -79,7 +79,7 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
     }
 
     public FactorValue getValue() {
-        return value;
+        return (FactorValue) value;
     }
 
     private int getPositionOnParent() {
@@ -220,7 +220,8 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
             }
 
         }
-        factorB.getParent().free();
+        if (factorB.getParent() != null)
+            factorB.getParent().free();
         return true;
     }
 
@@ -280,7 +281,8 @@ public class Factor implements GroupTermParent, Groupable, Cloneable {
 
         this.setValue(groupTerm);
 
-        factorB.getParent().free();
+        if (factorB.getParent() != null)
+            factorB.getParent().free();
 
         return true;
 

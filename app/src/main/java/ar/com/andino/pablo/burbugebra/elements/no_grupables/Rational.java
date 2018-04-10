@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 
 public final class Rational implements FactorValue, TermValue {
 
@@ -84,6 +86,18 @@ public final class Rational implements FactorValue, TermValue {
         this.isVariable = false;
     }
 
+    public Rational times(Rational rational){
+        this.numerator *= rational.numerator;
+        this.denominator *= rational.denominator;
+        return this;
+    }
+
+    public Rational plus(Rational rational){
+        this.numerator = this.numerator * rational.denominator + this.denominator * rational.numerator;
+        this.denominator = this.denominator * rational.denominator;
+        return this;
+    }
+
     @Override
     public String toString() {
 
@@ -130,6 +144,11 @@ public final class Rational implements FactorValue, TermValue {
         rational.setParent((GroupFactorParent) null);
         return rational;
 
+    }
+
+    @Override
+    public void setParent(Operand parent) {
+        this.parent = parent;
     }
 
     private static HashMap<Integer, Integer> getPrimeFactors(int number) {

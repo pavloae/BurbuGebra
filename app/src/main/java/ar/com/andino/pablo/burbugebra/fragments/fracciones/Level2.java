@@ -139,7 +139,7 @@ public class Level2 extends Fragment implements View.OnTouchListener {
                 while (animationIsActive) {
                     frameStartTime = System.currentTimeMillis();
 
-                    operationsView.textBubble.update();
+                    operationsView.equation.update();
 
                     frameTime = System.currentTimeMillis() - frameStartTime;
                     if (frameTime < MAX_FRAME_TIME) {

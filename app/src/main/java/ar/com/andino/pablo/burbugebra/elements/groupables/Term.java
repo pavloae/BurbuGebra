@@ -89,7 +89,7 @@ public class Term implements GroupFactorParent, Groupable, Cloneable {
     }
 
     public TermValue getValue() {
-        return value;
+        return (TermValue) value;
     }
 
     public final boolean group(Groupable groupable) {
@@ -169,8 +169,7 @@ public class Term implements GroupFactorParent, Groupable, Cloneable {
 
     private boolean operateOnFactor(Rational termA, Rational factorB){
 
-        termA.numerator *= factorB.numerator;
-        termA.denominator *= factorB.denominator;
+        termA.times(factorB);
 
         factorB.free();
 
@@ -214,8 +213,7 @@ public class Term implements GroupFactorParent, Groupable, Cloneable {
         if (termA.isVariable || termB.isVariable)
             return false;
 
-        termA.numerator = termA.numerator * termB.denominator + termA.denominator * termB.numerator;
-        termA.denominator = termA.denominator * termB.denominator;
+        termA.plus(termB);
 
         termB.free();
 
@@ -233,16 +231,32 @@ public class Term implements GroupFactorParent, Groupable, Cloneable {
 
     private boolean operateOnTerm(GroupFactor termA, Rational termB) throws CloneNotSupportedException{
 
-        getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
-        termB.free();
+        if (termA.getVariable() != null ^ termB.isVariable)
+            return false;
+
+        getParent().add(getPositionOnParent()+1, ((Term) termB.getParent()).clone());
+        termB.getParent().free();
         return true;
     }
 
     private boolean operateOnTerm(GroupFactor termA, GroupFactor termB) {
 
-        if (termA.getCoeficient() != null )
+        if (
+                termA.getVariable() != null
+                        && termB.getVariable() != null
+                        && !termA.getVariable().name.equals(termB.getVariable().name)
+                )
+            return false;
 
-        getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
+        if (
+                termA.getVariable() != null
+                        && termB.getVariable() != null
+                        && termA.getVariable().name.equals(termB.getVariable().name)
+                )
+            termA.getCoeficient().plus(termB.getCoeficient());
+
+        else
+            getParent().add(getPositionOnParent()+1, new Term(termB.clone()));
 
         termB.getParent().free();
 

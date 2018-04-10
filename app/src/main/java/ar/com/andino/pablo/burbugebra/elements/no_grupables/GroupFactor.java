@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ar.com.andino.pablo.burbugebra.elements.Equation;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroupable {
@@ -48,20 +49,25 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
         return parent;
     }
 
+    public Rational getVariable() {
+        if (
+                size() == 2
+                        && get(0).value instanceof Rational
+                        && get(1).value instanceof Rational
+                        && ((Rational) get(0).value).isVariable ^ ((Rational) get(1).value).isVariable
+                )
+            return (Rational) ((((Rational) get(0).value).isVariable) ? get(0).value : get(1).value);
+        return null;
+    }
+
     public Rational getCoeficient() {
         if (
                 size() == 2
                         && get(0).value instanceof Rational
                         && get(1).value instanceof Rational
-                        && (
-                                ((Rational) get(0).value).isVariable
-                                        ^ ((Rational) get(1).value).isVariable
+                        && ((Rational) get(0).value).isVariable ^ ((Rational) get(1).value).isVariable
                 )
-                )
-            return (((Rational) get(0).value).isVariable) ?
-                    (Rational) get(1).value :
-                    (Rational) get(0).value;
-
+            return (Rational) ((((Rational) get(0).value).isVariable) ? get(1).value : get(0).value);
         return null;
     }
 
@@ -117,12 +123,17 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
         GroupFactor groupFactor = (GroupFactor) super.clone();
 
-        groupFactor.setParent(null);
+        groupFactor.setParent((GroupFactorParent) null);
 
         for (Factor factor : groupFactor)
             factor.setParent(groupFactor);
 
         return groupFactor;
+    }
+
+    @Override
+    public void setParent(Operand parent) {
+
     }
 
     // Interface TermValue

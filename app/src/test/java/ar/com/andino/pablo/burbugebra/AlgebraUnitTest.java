@@ -4,10 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import ar.com.andino.pablo.burbugebra.elements.Equation;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
@@ -63,6 +62,12 @@ public class AlgebraUnitTest {
                                 new GroupFactor(
                                         new Factor(8, 3),
                                         new Factor(3, 5).toggleOperation()
+                                )
+                        ),
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(2, 3),
+                                        new Factor("X")
                                 )
                         )
                 )
@@ -133,7 +138,7 @@ public class AlgebraUnitTest {
         if(equation.changeMember(equation.getLeftMember().get(0)))
             System.out.println(equation);
 
-        ((Term) equation.getRightMember().get(2)).invert();
+        ((Term) equation.getRightMember().get(3)).invert();
 
         System.out.println(equation);
 
@@ -144,7 +149,7 @@ public class AlgebraUnitTest {
         System.out.println(equation);
 
         ((Term) equation.getRightMember().get(1)).group(
-                equation.getRightMember().get(2)
+                equation.getRightMember().get(3)
         );
 
         System.out.println(equation);
@@ -156,6 +161,24 @@ public class AlgebraUnitTest {
         ((Term) equation.getRightMember().get(1)).invert();
 
         System.out.println(equation);
+
+        ((GroupTerm) equation.getRightMember()).add(
+                (Term) equation.getRightMember().remove(1)
+        );
+
+        System.out.println(equation);
+
+        boolean result = ((GroupTerm) equation.getRightMember()).get(0).group(
+                ((GroupTerm) equation.getRightMember()).get(1)
+        );
+
+        System.out.println(equation + " -> " + result);
+
+        result = ((GroupTerm) equation.getRightMember()).get(0).group(
+                ((GroupTerm) equation.getRightMember()).get(1)
+        );
+
+        System.out.println(equation + " -> " + result);
 
         System.out.println("Time: " + (System.currentTimeMillis() - initTime) + " ms");
 

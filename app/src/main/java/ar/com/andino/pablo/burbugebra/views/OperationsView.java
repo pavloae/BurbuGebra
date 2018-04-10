@@ -8,7 +8,11 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.bubbles.Bubble;
+import ar.com.andino.pablo.burbugebra.bubbles.EquationBubble;
+import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
+import ar.com.andino.pablo.burbugebra.bubbles.TermBubble;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
 public class OperationsView extends View {
 
@@ -20,7 +24,7 @@ public class OperationsView extends View {
 
     private static Bitmap backGroundGame;
 
-    public Bubble textBubble;
+    public InterfazBurbuja equation;
     public static Bitmap bitmapBubble;
 
     public OperationsView(Context context, AttributeSet attributeSet){
@@ -48,8 +52,8 @@ public class OperationsView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(backGroundGame, 0, 0, null);
-        if (textBubble != null)
-            textBubble.onDraw(canvas);
+        if (equation != null)
+            equation.onDraw(canvas);
     }
 
     @Override
@@ -59,7 +63,9 @@ public class OperationsView extends View {
 
     public void initBubbles() {
 
-
+        equation = new EquationBubble(bitmapBubble, getWidth() / 2, getHeight() / 2, getWidth() / 10);
+        ((GroupTerm)((Equation) equation).getLeftMember()).add(new TermBubble());
+        ((GroupTerm)((Equation) equation).getRightMember()).add(new TermBubble());
 
     }
 

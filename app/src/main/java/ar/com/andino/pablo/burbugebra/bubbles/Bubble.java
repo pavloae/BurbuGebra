@@ -25,9 +25,6 @@ public abstract class Bubble implements InterfazBurbuja {
     public boolean isBursted;
     protected boolean isPressed;
 
-    protected Bubble(){
-    }
-
     protected Bubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius){
         this.centerX = centerX;
         this.centerY = centerY;

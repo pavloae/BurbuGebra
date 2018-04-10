@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ar.com.andino.pablo.burbugebra.elements.Equation;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
 public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupable {
@@ -92,12 +93,17 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
 
         GroupTerm groupTerm = (GroupTerm) super.clone();
 
-        groupTerm.setParent(null);
+        groupTerm.setParent((GroupTermParent) null);
 
         for (Term term : groupTerm)
             term.setParent(groupTerm);
 
         return groupTerm;
+    }
+
+    @Override
+    public void setParent(Operand parent) {
+
     }
 
     // Interface FactorValue
