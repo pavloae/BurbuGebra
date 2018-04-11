@@ -2,8 +2,11 @@ package ar.com.andino.pablo.burbugebra.bubbles;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.support.annotation.NonNull;
 
 public interface InterfazBurbuja {
+
+    InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius);
 
     float getCenterX();
 
@@ -25,7 +28,7 @@ public interface InterfazBurbuja {
 
     boolean isBursted();
 
-    void update();
+    void updateBubble();
 
     void onDraw(Canvas canvas);
 

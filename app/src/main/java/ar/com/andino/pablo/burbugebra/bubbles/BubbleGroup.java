@@ -45,7 +45,7 @@ public class BubbleGroup<T extends InterfazBurbuja> {
     synchronized public void update() {
         if (burbujas != null && burbujas.size() > 0)
             for (position = 0; position < burbujas.size(); position++)
-                burbujas.get(position).update();
+                burbujas.get(position).updateBubble();
     }
 
     synchronized public void onTouchScreen(float x, float y) {

@@ -1,7 +1,7 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.TermParent;
 
 public interface FactorValue extends Value {
-    void setParent(GroupTermParent parent);
+    void setParent(TermParent parent);
 }

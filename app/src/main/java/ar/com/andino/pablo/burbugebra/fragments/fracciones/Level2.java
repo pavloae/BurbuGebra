@@ -100,6 +100,7 @@ public class Level2 extends Fragment implements View.OnTouchListener {
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         view.performClick();
+        view.onTouchEvent(motionEvent);
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
             update(motionEvent.getX(), motionEvent.getY());
             view.invalidate();
@@ -139,7 +140,7 @@ public class Level2 extends Fragment implements View.OnTouchListener {
                 while (animationIsActive) {
                     frameStartTime = System.currentTimeMillis();
 
-                    operationsView.equation.update();
+                    operationsView.equation.updateBubble();
 
                     frameTime = System.currentTimeMillis() - frameStartTime;
                     if (frameTime < MAX_FRAME_TIME) {

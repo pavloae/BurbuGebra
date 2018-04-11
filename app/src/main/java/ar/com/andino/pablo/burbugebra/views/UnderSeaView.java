@@ -113,7 +113,7 @@ public class UnderSeaView extends View {
                         @Override
                         public void onPressed() {
                             super.onPressed();
-                            update();
+                            updateBubble();
 
                         }
 

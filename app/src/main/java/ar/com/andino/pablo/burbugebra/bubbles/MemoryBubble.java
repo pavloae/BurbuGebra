@@ -2,6 +2,7 @@ package ar.com.andino.pablo.burbugebra.bubbles;
 
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 
 public class MemoryBubble extends Bubble {
 
@@ -22,6 +23,11 @@ public class MemoryBubble extends Bubble {
 
     public int getNumber() {
         return number;
+    }
+
+    @Override
+    public InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
+        return null;
     }
 
     @Override

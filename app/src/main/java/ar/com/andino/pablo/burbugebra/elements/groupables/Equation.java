@@ -1,20 +1,16 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
+import android.graphics.Canvas;
 import android.support.v4.os.OperationCanceledException;
 
 import java.util.ArrayList;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
-import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
-public class Equation implements GroupTermParent, GroupFactorParent {
+public class Equation implements TermParent, FactorParent {
 
-    private ArrayList<? extends Groupable> leftMember, rightMember;
+    private ArrayList<? extends Operand> leftMember, rightMember;
 
     public Equation(){
         leftMember = new GroupTerm();
@@ -23,7 +19,7 @@ public class Equation implements GroupTermParent, GroupFactorParent {
         ((GroupTerm) rightMember).setParent(this);
     }
 
-    public ArrayList<? extends Groupable> getLeftMember() {
+    public ArrayList<? extends Operand> getLeftMember() {
         return leftMember;
     }
 
@@ -31,7 +27,7 @@ public class Equation implements GroupTermParent, GroupFactorParent {
         this.leftMember = leftMember;
     }
 
-    public ArrayList<? extends Groupable> getRightMember() {
+    public ArrayList<? extends Operand> getRightMember() {
         return rightMember;
     }
 
@@ -39,58 +35,58 @@ public class Equation implements GroupTermParent, GroupFactorParent {
         this.rightMember = rightMember;
     }
 
-    public boolean changeMember(Groupable groupable) {
+    public boolean changeMember(Operand operand) {
 
-        if (groupable == null || leftMember == null || rightMember == null)
+        if (operand == null || leftMember == null || rightMember == null)
             return false;
 
         try {
 
             // Movemos un Term del GroupTerm de la izquierda al GroupTerm de la derecha
-            if (groupable instanceof Term && leftMember.contains(groupable) && rightMember instanceof GroupTerm)
-                    ((GroupTerm) rightMember).add(((Term) groupable).clone().toggleOperation());
+            if (operand instanceof Term && leftMember.contains(operand) && rightMember instanceof GroupTerm)
+                    ((GroupTerm) rightMember).add((Term) operand.clone().toggleOperation());
 
             // Movemos un Term del GroupTerm de la derecha al GroupTerm de la izquierda
-            else if (groupable instanceof Term && rightMember.contains(groupable) && leftMember instanceof GroupTerm)
-                ((GroupTerm) leftMember).add(((Term) groupable).clone().toggleOperation());
+            else if (operand instanceof Term && rightMember.contains(operand) && leftMember instanceof GroupTerm)
+                ((GroupTerm) leftMember).add((Term) operand.clone().toggleOperation());
 
             // Movemos un Term del GroupTerm de la izquierda al GroupFactor de la derecha
-            else if (groupable instanceof Term && leftMember.contains(groupable) && rightMember instanceof GroupFactor)
+            else if (operand instanceof Term && leftMember.contains(operand) && rightMember instanceof GroupFactor)
                 rightMember = new GroupTerm(
                         new Term((GroupFactor) rightMember),
-                        ((Term) groupable).clone().toggleOperation()
+                        (Term) operand.clone().toggleOperation()
                 );
 
             // Movemos un Term del GroupTerm de la derecha al GroupFactor de la izquierda
-            else if (groupable instanceof Term && rightMember.contains(groupable) && leftMember instanceof GroupFactor)
+            else if (operand instanceof Term && rightMember.contains(operand) && leftMember instanceof GroupFactor)
                 leftMember = new GroupTerm(
                         new Term((GroupFactor) leftMember),
-                        ((Term) groupable).clone().toggleOperation()
+                        (Term) operand.clone().toggleOperation()
                 );
 
             // Movemos un Factor del GroupFactor de la izquierda al GroupFactor de la derecha
-            else if (groupable instanceof Factor && leftMember.contains(groupable) && rightMember instanceof GroupFactor)
-                ((GroupFactor) rightMember).add(((Factor) groupable).clone().toggleOperation());
+            else if (operand instanceof Factor && leftMember.contains(operand) && rightMember instanceof GroupFactor)
+                ((GroupFactor) rightMember).add((Factor) operand.clone().toggleOperation());
 
             // Movemos un Factor del GroupFactor de la derecha al GroupFactor de la izquierda
-            else if (groupable instanceof Factor && rightMember.contains(groupable) && leftMember instanceof GroupFactor)
-                ((GroupFactor) leftMember).add(((Factor) groupable).clone().toggleOperation());
+            else if (operand instanceof Factor && rightMember.contains(operand) && leftMember instanceof GroupFactor)
+                ((GroupFactor) leftMember).add((Factor) operand.clone().toggleOperation());
 
             // Movemos un Factor del GroupFactor de la izquierda al GroupTerm de la derecha
-            else if (groupable instanceof Factor && leftMember.contains(groupable) && rightMember instanceof GroupTerm)
+            else if (operand instanceof Factor && leftMember.contains(operand) && rightMember instanceof GroupTerm)
                 rightMember = new GroupFactor(
                         new Factor((GroupTerm) rightMember),
-                        ((Factor) groupable).clone().toggleOperation()
+                        (Factor) operand.clone().toggleOperation()
                 );
 
             // Movemos un Factor del GroupFactor de la derecha al GroupTerm de la izquierda
-            else if (groupable instanceof Factor && rightMember.contains(groupable) && leftMember instanceof GroupTerm)
+            else if (operand instanceof Factor && rightMember.contains(operand) && leftMember instanceof GroupTerm)
                 leftMember = new GroupFactor(
                         new Factor((GroupTerm) leftMember),
-                        ((Factor) groupable).clone().toggleOperation()
+                        (Factor) operand.clone().toggleOperation()
                 );
 
-            groupable.free();
+            operand.free();
 
             onUpdate();
 
@@ -104,12 +100,44 @@ public class Equation implements GroupTermParent, GroupFactorParent {
 
     }
 
+    public void onDraw(Canvas canvas) {
+
+        for (Operand operand : leftMember)
+            operand.onDraw(canvas);
+
+        for (Operand operand : rightMember)
+            operand.onDraw(canvas);
+
+    }
+
+    public void updateBubble() {
+
+        for (Operand operand : leftMember)
+            operand.updateBubble();
+
+        for (Operand operand : rightMember)
+            operand.updateBubble();
+
+    }
+
+    public void actionUp(float xCoor, float yCoor){
+
+        for (Operand operand : leftMember)
+            if (operand.isTouched(xCoor, yCoor))
+                operand.isBursted = true;
+
+        for (Operand operand : rightMember)
+            if (operand.isTouched(xCoor, yCoor))
+                operand.isBursted = true;
+
+    }
+
     @Override
     public String toString() {
         return leftMember.toString() + " = " + rightMember.toString();
     }
 
-    // Interface GroupParent
+    // Interface Parent
 
     @Override
     public void onUpdate() {

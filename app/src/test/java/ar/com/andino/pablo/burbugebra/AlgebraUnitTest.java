@@ -61,7 +61,7 @@ public class AlgebraUnitTest {
                         new Term(
                                 new GroupFactor(
                                         new Factor(8, 3),
-                                        new Factor(3, 5).toggleOperation()
+                                        (Factor) new Factor(3, 5).toggleOperation()
                                 )
                         ),
                         new Term(
@@ -241,7 +241,7 @@ public class AlgebraUnitTest {
         Assert.assertTrue(((Rational) term2.value).getParent() != rational1.getParent());
 
         GroupTerm groupTerm = new GroupTerm(term1);
-        groupTerm.add(term1.clone());
+        groupTerm.add((Term) term1.clone());
 
         Assert.assertTrue(groupTerm.size()==2);
 
@@ -261,5 +261,6 @@ public class AlgebraUnitTest {
 
 
     }
+
 
 }

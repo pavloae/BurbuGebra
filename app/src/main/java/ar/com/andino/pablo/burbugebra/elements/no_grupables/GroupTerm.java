@@ -6,14 +6,14 @@ import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Parent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.TermParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupable {
+public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOperand {
 
-    private GroupParent parent;
+    private Parent parent;
 
     public GroupTerm() {
         super();
@@ -45,7 +45,7 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
 
     }
 
-    public GroupParent getParent() {
+    public Parent getParent() {
         return parent;
     }
 
@@ -93,7 +93,7 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
 
         GroupTerm groupTerm = (GroupTerm) super.clone();
 
-        groupTerm.setParent((GroupTermParent) null);
+        groupTerm.setParent((TermParent) null);
 
         for (Term term : groupTerm)
             term.setParent(groupTerm);
@@ -103,14 +103,26 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, NoGroupab
 
     @Override
     public void setParent(Operand parent) {
-
+        this.parent = (Parent) parent;
     }
+
 
     // Interface FactorValue
 
     @Override
-    public void setParent(GroupTermParent parent) {
+    public void setParent(TermParent parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public void free(Operand element) {
+        super.remove(element);
+        onUpdate();
+    }
+
+    @Override
+    public int indexOf(Operand operand) {
+        return super.indexOf(operand);
     }
 
 }

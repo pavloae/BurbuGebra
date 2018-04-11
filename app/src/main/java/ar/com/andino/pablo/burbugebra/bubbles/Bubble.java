@@ -33,6 +33,15 @@ public abstract class Bubble implements InterfazBurbuja {
     }
 
     @Override
+    public InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
+        this.centerX = centerX;
+        this.centerY = centerY;
+        this.radius = radius;
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        return this;
+    }
+
+    @Override
     public float getCenterX() {
         return centerX;
     }
@@ -111,7 +120,7 @@ public abstract class Bubble implements InterfazBurbuja {
     }
 
     @Override
-    public void update(){
+    public void updateBubble(){
         left = (int) (getCenterX() - getRadius());
         top = (int) (getCenterY() - getRadius());
         bitmap = getBitmap();

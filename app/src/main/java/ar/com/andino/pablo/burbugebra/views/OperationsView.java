@@ -5,13 +5,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import ar.com.andino.pablo.burbugebra.R;
-import ar.com.andino.pablo.burbugebra.bubbles.EquationBubble;
-import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
-import ar.com.andino.pablo.burbugebra.bubbles.TermBubble;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
 public class OperationsView extends View {
@@ -24,7 +23,7 @@ public class OperationsView extends View {
 
     private static Bitmap backGroundGame;
 
-    public InterfazBurbuja equation;
+    public Equation equation;
     public static Bitmap bitmapBubble;
 
     public OperationsView(Context context, AttributeSet attributeSet){
@@ -61,12 +60,42 @@ public class OperationsView extends View {
         return super.performClick();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        super.performClick();
+
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                equation.actionUp(event.getX(), event.getY());
+
+                break;
+
+        }
+
+        return super.onTouchEvent(event);
+    }
+
     public void initBubbles() {
 
-        equation = new EquationBubble(bitmapBubble, getWidth() / 2, getHeight() / 2, getWidth() / 10);
-        ((GroupTerm)((Equation) equation).getLeftMember()).add(new TermBubble());
-        ((GroupTerm)((Equation) equation).getRightMember()).add(new TermBubble());
+        equation = new Equation();
+
+        ((GroupTerm) equation.getLeftMember()).add(
+                (Term) new Term(1).setBubble(bitmapBubble, 200, 400, 50)
+        );
+
+        ((GroupTerm) equation.getRightMember()).add(
+                (Term) new Term(1).setBubble(bitmapBubble, 500, 400, 50)
+        );
 
     }
+
+
 
 }

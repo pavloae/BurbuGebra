@@ -5,15 +5,13 @@ import android.annotation.SuppressLint;
 import java.util.HashMap;
 import java.util.Locale;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupTermParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.Groupable;
+import ar.com.andino.pablo.burbugebra.elements.groupables.FactorParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.TermParent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 
 public final class Rational implements FactorValue, TermValue {
 
-    private Groupable parent;
+    private Operand parent;
 
     public int numerator;
     public int denominator;
@@ -53,7 +51,7 @@ public final class Rational implements FactorValue, TermValue {
         name = null;
     }
 
-    public Groupable getParent() {
+    public Operand getParent() {
         return parent;
     }
 
@@ -124,15 +122,15 @@ public final class Rational implements FactorValue, TermValue {
     // Interface TermValue
 
     @Override
-    public void setParent(GroupFactorParent parent) {
-        this.parent = (Groupable) parent;
+    public void setParent(FactorParent parent) {
+        this.parent = (Operand) parent;
     }
 
     // Interface FactorValue
 
     @Override
-    public void setParent(GroupTermParent parent) {
-        this.parent = (Groupable) parent;
+    public void setParent(TermParent parent) {
+        this.parent = (Operand) parent;
     }
 
     // Interface Cloneable
@@ -141,7 +139,7 @@ public final class Rational implements FactorValue, TermValue {
     public Rational clone() throws CloneNotSupportedException {
 
         Rational rational = (Rational) super.clone();
-        rational.setParent((GroupFactorParent) null);
+        rational.setParent((FactorParent) null);
         return rational;
 
     }

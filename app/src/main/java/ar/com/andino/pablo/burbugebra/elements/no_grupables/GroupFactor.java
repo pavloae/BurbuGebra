@@ -6,14 +6,14 @@ import java.util.Collection;
 
 import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupFactorParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.GroupParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.FactorParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Parent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 
-public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroupable {
+public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOperand {
 
-    private GroupFactorParent parent;
+    private FactorParent parent;
 
     public GroupFactor() {
         super();
@@ -45,7 +45,7 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
     }
 
-    public GroupParent getParent() {
+    public Parent getParent() {
         return parent;
     }
 
@@ -123,7 +123,7 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
         GroupFactor groupFactor = (GroupFactor) super.clone();
 
-        groupFactor.setParent((GroupFactorParent) null);
+        groupFactor.setParent((FactorParent) null);
 
         for (Factor factor : groupFactor)
             factor.setParent(groupFactor);
@@ -133,14 +133,24 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, NoGroup
 
     @Override
     public void setParent(Operand parent) {
-
+        this.parent = (FactorParent) parent;
     }
 
     // Interface TermValue
 
     @Override
-    public void setParent(GroupFactorParent parent) {
+    public void setParent(FactorParent parent) {
         this.parent = parent;
     }
 
+    @Override
+    public void free(Operand element) {
+        super.remove(element);
+        onUpdate();
+    }
+
+    @Override
+    public int indexOf(Operand operand) {
+        return super.indexOf(operand);
+    }
 }
