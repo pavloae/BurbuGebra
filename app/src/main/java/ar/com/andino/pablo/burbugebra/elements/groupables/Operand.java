@@ -2,9 +2,8 @@ package ar.com.andino.pablo.burbugebra.elements.groupables;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
-
-import java.util.ArrayList;
 
 import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
@@ -15,8 +14,10 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.Value;
 
 public abstract class Operand implements InterfazBurbuja, Cloneable {
 
+    private static Typeface typeface;
+
     private int left, top;
-    protected Bitmap bitmap;
+    private Bitmap bubbleBitmap;
     private float centerX;
     private float centerY;
     private float radius;
@@ -25,10 +26,8 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
     public GroupOperand parent;
     public Value value;
+    private Bitmap valueBitmap;
     public int operation = 1;
-
-    Operand(){
-    }
 
     Operand(Rational rational){
         this.value = rational;
@@ -126,6 +125,18 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
     }
 
+    public static void setTypeface(Typeface typeface) {
+        if (typeface == null)
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
+        Operand.typeface = typeface;
+    }
+
+    public static Typeface getTypeface() {
+        if (Operand.typeface == null)
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
+        return typeface;
+    }
+
     // Interface InterfazBurbuja
 
     @Override
@@ -133,7 +144,7 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
-        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bubbleBitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
         return this;
     }
 
@@ -153,8 +164,8 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
     }
 
     @Override
-    public Bitmap getBitmap() {
-        return bitmap;
+    public Bitmap getBubbleBitmap() {
+        return bubbleBitmap;
     }
 
     @Override
@@ -171,19 +182,19 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
     public void setRadius(float radius) {
         this.radius = radius;
         if (radius <= 0) {
-            this.bitmap = null;
+            this.bubbleBitmap = null;
             return;
         }
 
-        if (getBitmap() == null)
+        if (getBubbleBitmap() == null)
             return;
 
-        bitmap = Bitmap.createScaledBitmap(getBitmap(), 2 * (int) radius, 2 * (int) radius, true);
+        bubbleBitmap = Bitmap.createScaledBitmap(getBubbleBitmap(), 2 * (int) radius, 2 * (int) radius, true);
     }
 
     @Override
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+    public void setBubbleBitmap(Bitmap bubbleBitmap) {
+        this.bubbleBitmap = bubbleBitmap;//Bitmap.createScaledBitmap(bubbleBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
     }
 
     @Override
@@ -204,7 +215,7 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
         left = (int) (getCenterX() - getRadius());
         top = (int) (getCenterY() - getRadius());
-        bitmap = getBitmap();
+        bubbleBitmap = getBubbleBitmap();
 
         if (value instanceof GroupTerm)
             for (Term term : (GroupTerm) value)
@@ -218,8 +229,8 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (getBitmap() != null && !isBursted)
-            canvas.drawBitmap(bitmap, left, top, null);
+        if (getBubbleBitmap() != null && !isBursted)
+            canvas.drawBitmap(bubbleBitmap, left, top, null);
     }
 
     @Override
@@ -234,6 +245,8 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
     @Override
     public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
+
+
 
     }
 }

@@ -264,8 +264,8 @@ public class IntroView extends View {
                     }
 
                     @Override
-                    public Bitmap getBitmap() {
-                        return (t0 == 0) ? null : super.getBitmap();
+                    public Bitmap getBubbleBitmap() {
+                        return (t0 == 0) ? null : super.getBubbleBitmap();
                     }
                 }
         );

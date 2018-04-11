@@ -60,38 +60,16 @@ public class OperationsView extends View {
         return super.performClick();
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        super.performClick();
-
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-
-                break;
-            case MotionEvent.ACTION_MOVE:
-                break;
-
-            case MotionEvent.ACTION_UP:
-
-                equation.actionUp(event.getX(), event.getY());
-
-                break;
-
-        }
-
-        return super.onTouchEvent(event);
-    }
-
     public void initBubbles() {
 
         equation = new Equation();
 
         ((GroupTerm) equation.getLeftMember()).add(
-                (Term) new Term(1).setBubble(bitmapBubble, 200, 400, 50)
+                (Term) new Term(12).setBubble(bitmapBubble, 100, 400, 50)
         );
 
         ((GroupTerm) equation.getRightMember()).add(
-                (Term) new Term(1).setBubble(bitmapBubble, 500, 400, 50)
+                (Term) new Term(3,5).setBubble(bitmapBubble, 250, 600, 50)
         );
 
     }

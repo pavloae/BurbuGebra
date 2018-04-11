@@ -14,7 +14,7 @@ public interface InterfazBurbuja {
 
     float getRadius();
 
-    Bitmap getBitmap();
+    Bitmap getBubbleBitmap();
 
     void setCenterX(float centerX);
 
@@ -22,7 +22,7 @@ public interface InterfazBurbuja {
 
     void setRadius(float radius);
 
-    void setBitmap(Bitmap bitmap);
+    void setBubbleBitmap(Bitmap bubbleBitmap);
 
     boolean isTouched(float xCoor, float yCoor);
 

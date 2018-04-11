@@ -1,6 +1,7 @@
 package ar.com.andino.pablo.burbugebra.fragments.fracciones;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ar.com.andino.pablo.burbugebra.R;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.views.OperationsView;
 
 public class Level2 extends Fragment implements View.OnTouchListener {
@@ -50,6 +52,7 @@ public class Level2 extends Fragment implements View.OnTouchListener {
     @Override
     public void onStart() {
         super.onStart();
+        Operand.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "comic_sans_ms_bold.ttf"));
     }
 
     @Override
@@ -100,10 +103,19 @@ public class Level2 extends Fragment implements View.OnTouchListener {
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         view.performClick();
-        view.onTouchEvent(motionEvent);
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-            update(motionEvent.getX(), motionEvent.getY());
-            view.invalidate();
+        switch (motionEvent.getAction()){
+            case MotionEvent.ACTION_DOWN:
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                operationsView.equation.actionUp(motionEvent.getX(), motionEvent.getY());
+
+                break;
+
         }
         return true;
     }

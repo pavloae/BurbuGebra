@@ -31,9 +31,9 @@ public class MemoryBubble extends Bubble {
     }
 
     @Override
-    public Bitmap getBitmap() {
+    public Bitmap getBubbleBitmap() {
         if (this.equals(MemoryBubble.burbuja1) || this.equals(MemoryBubble.burbuja2)) {
-            return super.getBitmap();
+            return super.getBubbleBitmap();
         }
         return Bitmap.createScaledBitmap(MemoryBubble.hiddenBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
     }

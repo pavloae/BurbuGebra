@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
+import ar.com.andino.pablo.burbugebra.utils.Utils;
 
 public class Equation implements TermParent, FactorParent {
 
@@ -124,11 +125,19 @@ public class Equation implements TermParent, FactorParent {
 
         for (Operand operand : leftMember)
             if (operand.isTouched(xCoor, yCoor))
-                operand.isBursted = true;
+                operand.setBubbleBitmap(
+                        Utils.setTextToBitmap(
+                                operand.toString(), 64, 10, 75, operand.getBubbleBitmap(), Operand.getTypeface()
+                        )
+                );
 
         for (Operand operand : rightMember)
             if (operand.isTouched(xCoor, yCoor))
-                operand.isBursted = true;
+                operand.setBubbleBitmap(
+                        Utils.setTextToBitmap(
+                                operand.toString(), 64, 10, 75, operand.getBubbleBitmap(), Operand.getTypeface()
+                        )
+                );
 
     }
 

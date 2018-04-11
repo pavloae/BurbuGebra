@@ -2,16 +2,8 @@ package ar.com.andino.pablo.burbugebra.bubbles;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import ar.com.andino.pablo.burbugebra.sprites.SpritesBubble;
 
 public abstract class Bubble implements InterfazBurbuja {
 
@@ -57,7 +49,7 @@ public abstract class Bubble implements InterfazBurbuja {
     }
 
     @Override
-    public Bitmap getBitmap(){
+    public Bitmap getBubbleBitmap(){
         return bitmap;
     }
 
@@ -79,15 +71,15 @@ public abstract class Bubble implements InterfazBurbuja {
             return;
         }
 
-        if (getBitmap() == null)
+        if (getBubbleBitmap() == null)
             return;
 
-        bitmap = Bitmap.createScaledBitmap(getBitmap(), 2 * (int) radius, 2 * (int) radius, true);
+        bitmap = Bitmap.createScaledBitmap(getBubbleBitmap(), 2 * (int) radius, 2 * (int) radius, true);
     }
 
     @Override
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+    public void setBubbleBitmap(Bitmap bubbleBitmap) {
+        this.bitmap = Bitmap.createScaledBitmap(bubbleBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
     }
 
     @Override
@@ -105,7 +97,7 @@ public abstract class Bubble implements InterfazBurbuja {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (getBitmap() != null && !isBursted)
+        if (getBubbleBitmap() != null && !isBursted)
             canvas.drawBitmap(bitmap, left, top, null);
     }
 
@@ -123,7 +115,7 @@ public abstract class Bubble implements InterfazBurbuja {
     public void updateBubble(){
         left = (int) (getCenterX() - getRadius());
         top = (int) (getCenterY() - getRadius());
-        bitmap = getBitmap();
+        bitmap = getBubbleBitmap();
     }
 
     public void setPressed(boolean isPressed) {
@@ -137,7 +129,7 @@ public abstract class Bubble implements InterfazBurbuja {
     @Override
     public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
 
-        if (bitmap == null || getRadius() <= 0 || getBitmap() == null)
+        if (bitmap == null || getRadius() <= 0 || getBubbleBitmap() == null)
             return;
 
         if (scaleToBubble){
@@ -164,18 +156,18 @@ public abstract class Bubble implements InterfazBurbuja {
         }
 
         Bitmap bmOverlay = Bitmap.createBitmap(
-                getBitmap().getWidth(), getBitmap().getHeight(), getBitmap().getConfig()
+                getBubbleBitmap().getWidth(), getBubbleBitmap().getHeight(), getBubbleBitmap().getConfig()
         );
 
         Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(getBitmap(), new Matrix(), null);
+        canvas.drawBitmap(getBubbleBitmap(), new Matrix(), null);
         canvas.drawBitmap(
                 bitmap,
-                (getBitmap().getWidth() - bitmap.getWidth()) / 2,
-                (getBitmap().getHeight() - bitmap.getHeight()) / 2 ,
+                (getBubbleBitmap().getWidth() - bitmap.getWidth()) / 2,
+                (getBubbleBitmap().getHeight() - bitmap.getHeight()) / 2 ,
                 null);
 
-        setBitmap(bmOverlay);
+        setBubbleBitmap(bmOverlay);
 
     }
 
