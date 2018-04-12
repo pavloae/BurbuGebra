@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BubbleGroup<T extends InterfazBurbuja> {
+public class BubbleGroup<T extends IBubble> {
 
     private List<T> burbujas = new ArrayList<>();
     private List<T> explotadas = new ArrayList<>();

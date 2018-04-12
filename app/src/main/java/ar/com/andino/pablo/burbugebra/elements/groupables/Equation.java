@@ -1,15 +1,26 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.support.v4.os.OperationCanceledException;
 
 import java.util.ArrayList;
 
+import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
-import ar.com.andino.pablo.burbugebra.utils.Utils;
 
 public class Equation implements TermParent, FactorParent {
+
+    private int xGlobalCenter;
+    private int yGlobalCenter;
+    private Bitmap bitmap;
+
+    private Paint paint;
 
     private ArrayList<? extends Operand> leftMember, rightMember;
 
@@ -103,6 +114,13 @@ public class Equation implements TermParent, FactorParent {
 
     public void onDraw(Canvas canvas) {
 
+        canvas.drawBitmap(
+                bitmap,
+                xGlobalCenter - bitmap.getWidth() / 2,
+                yGlobalCenter - bitmap.getHeight() / 2,
+                null
+        );
+
         for (Operand operand : leftMember)
             operand.onDraw(canvas);
 
@@ -111,10 +129,57 @@ public class Equation implements TermParent, FactorParent {
 
     }
 
+    private Paint getPaint(){
+        if (paint == null){
+            paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(Operand.textSize);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        }
+
+        return paint;
+    }
+
+    public void setYGlobalCenter(int yGlobalCenter) {
+
+        this.yGlobalCenter = yGlobalCenter;
+
+        if (leftMember instanceof GroupTerm)
+            ((GroupTerm) leftMember).setyGlobalCenter(yGlobalCenter);
+
+        if (leftMember instanceof GroupFactor)
+            ((GroupFactor) leftMember).setyGlobalCenter(yGlobalCenter);
+
+        if (rightMember instanceof GroupTerm)
+            ((GroupTerm) rightMember).setyGlobalCenter(yGlobalCenter);
+
+        if (rightMember instanceof GroupFactor)
+            ((GroupFactor) rightMember).setyGlobalCenter(yGlobalCenter);
+
+    }
+
+    public void setXGlobalCenter(int xGlobalCenter) {
+
+        this.xGlobalCenter = xGlobalCenter;
+
+    }
+
     public void updateBubble() {
 
-        for (Operand operand : leftMember)
+        if (bitmap == null) {
+            Rect bound = new Rect();
+            getPaint().getTextBounds("=", 0, 1, bound);
+            bitmap = Bitmap.createBitmap(bound.width(), bound.height(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawText("=", 0, 0, getPaint());
+
+        for (Operand operand : leftMember){
             operand.updateBubble();
+        }
 
         for (Operand operand : rightMember)
             operand.updateBubble();
@@ -125,20 +190,24 @@ public class Equation implements TermParent, FactorParent {
 
         for (Operand operand : leftMember)
             if (operand.isTouched(xCoor, yCoor))
-                operand.setBubbleBitmap(
-                        Utils.setTextToBitmap(
-                                operand.toString(), 64, 10, 75, operand.getBubbleBitmap(), Operand.getTypeface()
-                        )
-                );
+                operand.updateTextBitmap();
 
         for (Operand operand : rightMember)
             if (operand.isTouched(xCoor, yCoor))
-                operand.setBubbleBitmap(
-                        Utils.setTextToBitmap(
-                                operand.toString(), 64, 10, 75, operand.getBubbleBitmap(), Operand.getTypeface()
-                        )
-                );
+                operand.updateTextBitmap();
 
+    }
+
+    public IBubble getPressedBubble(float xCoor, float yCoor) {
+        for (Operand operand : leftMember)
+            if (operand.isTouched(xCoor, yCoor))
+                return operand;
+
+        for (Operand operand : rightMember)
+            if (operand.isTouched(xCoor, yCoor))
+                return operand;
+
+        return null;
     }
 
     @Override

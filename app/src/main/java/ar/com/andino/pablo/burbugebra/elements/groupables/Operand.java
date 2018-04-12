@@ -2,19 +2,25 @@ package ar.com.andino.pablo.burbugebra.elements.groupables;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 
-import ar.com.andino.pablo.burbugebra.bubbles.InterfazBurbuja;
+import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupOperand;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Value;
 
-public abstract class Operand implements InterfazBurbuja, Cloneable {
+public abstract class Operand implements IBubble, Cloneable {
 
-    private static Typeface typeface;
+    public static Typeface typeface;
+    public static int textSize = 64;
+
+    private Bitmap bitmap;
 
     private int left, top;
     private Bitmap bubbleBitmap;
@@ -26,7 +32,9 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
 
     public GroupOperand parent;
     public Value value;
-    private Bitmap valueBitmap;
+    private Paint paint;
+    private Rect bound;
+    private Bitmap textBitmap;
     public int operation = 1;
 
     Operand(Rational rational){
@@ -84,6 +92,7 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
     public boolean group(Operand operand) {
 
         try {
+
             if (operand instanceof Factor)
                 return group((Factor) operand);
 
@@ -113,6 +122,67 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
         this.value = null;
     }
 
+    public Rect getRect(){
+        Rect rect = new Rect();
+        getPaint().getTextBounds(toString(), 0, toString().length(), rect);
+        return bound;
+    }
+
+    private Paint getPaint(){
+        if (paint == null){
+            paint = new Paint();
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(textSize);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        }
+
+        return paint;
+    }
+
+    public void updateTextBitmap() {
+
+        Rect bound = new Rect();
+        getPaint().getTextBounds(toString(), 0, toString().length(), bound);
+        int wText = (int) getPaint().measureText(toString());
+        int hText = bound.height();
+
+        textBitmap = Bitmap.createBitmap(wText, hText, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(textBitmap);
+        canvas.drawColor(Color.TRANSPARENT);
+        canvas.drawText(toString(),wText / 2, hText, getPaint());
+
+        setRadius((float) (Math.sqrt(Math.pow(wText, 2) + Math.pow(hText, 2)) / 2));
+
+        updateBitmap();
+
+    }
+
+    public void updateBitmap(){
+
+        if (radius == 0)
+            return;
+
+        bitmap = Bitmap.createBitmap((int) (2 * radius), (int) (2 * radius), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+
+        if (textBitmap != null)
+            canvas.drawBitmap(textBitmap, radius - textBitmap.getWidth() / 2, radius - textBitmap.getHeight() / 2, null);
+
+        if (bubbleBitmap != null)
+            canvas.drawBitmap(bubbleBitmap, 0, 0, null);
+
+    }
+
+    Bitmap getBitmap(){
+        if (bitmap == null)
+            updateBitmap();
+        return bitmap;
+    }
+
     @Override
     public Operand clone() throws CloneNotSupportedException {
 
@@ -137,7 +207,7 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
         return typeface;
     }
 
-    // Interface InterfazBurbuja
+    // Interface IBubble
 
     @Override
     public Operand setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius){
@@ -176,6 +246,10 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
     @Override
     public void setCenterY(float centerY) {
         this.centerY = centerY;
+        if (value instanceof GroupFactor)
+            ((GroupFactor) value).setyGlobalCenter((int) centerY);
+        if (value instanceof GroupTerm)
+            ((GroupTerm) value).setyGlobalCenter((int) centerY);
     }
 
     @Override
@@ -225,12 +299,14 @@ public abstract class Operand implements InterfazBurbuja, Cloneable {
             for (Factor factor : (GroupFactor) value)
                 factor.updateBubble();
 
+
+
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (getBubbleBitmap() != null && !isBursted)
-            canvas.drawBitmap(bubbleBitmap, left, top, null);
+        if (getBitmap() != null)
+            canvas.drawBitmap(getBitmap(), left, top, null);
     }
 
     @Override

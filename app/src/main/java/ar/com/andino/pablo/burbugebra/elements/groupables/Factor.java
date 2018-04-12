@@ -48,6 +48,8 @@ public class Factor extends Operand implements TermParent {
 
         toggleOperation();
 
+        updateTextBitmap();
+
     }
 
     @Override
@@ -131,6 +133,8 @@ public class Factor extends Operand implements TermParent {
         factorA.denominator *= factorB.denominator;
 
         factorB.free();
+
+        updateTextBitmap();
 
         return true;
     }
@@ -251,7 +255,7 @@ public class Factor extends Operand implements TermParent {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (getPositionOnParent() > 0)
+        if (parent == null || getPositionOnParent() > 0)
             stringBuilder.append((operation == 1) ? "·" : ":");
 
         if (value instanceof GroupTerm && invert)

@@ -5,10 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
 import ar.com.andino.pablo.burbugebra.R;
+import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
@@ -64,14 +64,29 @@ public class OperationsView extends View {
 
         equation = new Equation();
 
-        ((GroupTerm) equation.getLeftMember()).add(
-                (Term) new Term(12).setBubble(bitmapBubble, 100, 400, 50)
-        );
+        Term t12 = new Term(12);
+        t12.setBubbleBitmap(bitmapBubble);
+        t12.setRadius(30);
+        t12.updateBitmap();
+        Term t3_5 = new Term(3, 5);
+        t3_5.setBubbleBitmap(bitmapBubble);
+        Term t2_8 = new Term(2, 8);
+        t2_8.setBubbleBitmap(bitmapBubble);
 
-        ((GroupTerm) equation.getRightMember()).add(
-                (Term) new Term(3,5).setBubble(bitmapBubble, 250, 600, 50)
-        );
 
+        ((GroupTerm) equation.getLeftMember()).add(t12);
+
+        ((GroupTerm) equation.getRightMember()).add(t3_5);
+
+        ((GroupTerm) equation.getRightMember()).add(t2_8);
+
+        equation.setYGlobalCenter(getHeight() / 2);
+        equation.setXGlobalCenter(getWidth() / 2);
+
+    }
+
+    public IBubble getPressedBubble(float xCoor, float yCoor){
+        return equation.getPressedBubble(xCoor, yCoor);
     }
 
 

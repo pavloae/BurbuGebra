@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ar.com.andino.pablo.burbugebra.R;
+import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.views.OperationsView;
 
@@ -22,6 +23,8 @@ public class Level2 extends Fragment implements View.OnTouchListener {
 
     OperationsView operationsView;
     Animation animation;
+
+    IBubble pressedBubble;
 
     public Level2() {
         super();
@@ -105,15 +108,18 @@ public class Level2 extends Fragment implements View.OnTouchListener {
         view.performClick();
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
-
+                pressedBubble = operationsView.getPressedBubble(motionEvent.getX(), motionEvent.getY());
                 break;
             case MotionEvent.ACTION_MOVE:
+                if (pressedBubble != null){
+                    pressedBubble.setCenterX(motionEvent.getX());
+                    pressedBubble.setCenterY(motionEvent.getY());
+                }
                 break;
-
             case MotionEvent.ACTION_UP:
-
-                operationsView.equation.actionUp(motionEvent.getX(), motionEvent.getY());
-
+                if (pressedBubble != null)
+                    ((Operand) pressedBubble).updateTextBitmap();
+                pressedBubble = null;
                 break;
 
         }

@@ -211,7 +211,7 @@ public class Term extends Operand implements FactorParent {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (getPositionOnParent() > 0)
+        if (parent == null || getPositionOnParent() > 0)
             stringBuilder.append((operation == 1) ? "+" : "-");
 
         if (this.value instanceof GroupTerm && parent != null && !((GroupTerm)parent).isEmpty())

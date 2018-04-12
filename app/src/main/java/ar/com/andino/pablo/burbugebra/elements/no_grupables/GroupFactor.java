@@ -14,6 +14,8 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOperand {
 
     private FactorParent parent;
+    public int yGlobalCenter;
+    public int widhtTotal;
 
     public GroupFactor() {
         super();
@@ -26,15 +28,24 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOp
 
     public void free(Factor value){
         super.remove(value);
+        this.widhtTotal -= 2 * value.getRadius();
         onUpdate();
+    }
+
+    public void setyGlobalCenter(int yGlobalCenter) {
+        this.yGlobalCenter = yGlobalCenter;
+
+        for (Factor factor : this)
+            factor.setCenterY(yGlobalCenter);
+
     }
 
     private void onUpdate() {
 
-        if (this.parent instanceof Equation && super.size() == 0)
+        if (this.parent instanceof Equation && super.size() == 0){
             super.add(new Factor());
-
-        else if (
+            this.widhtTotal = (int) get(0).getRadius();
+        } else if (
                 this.parent instanceof Equation
                         && super.size() == 1
                         && super.get(0).value instanceof GroupTerm
@@ -81,6 +92,8 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOp
             factor.setParent(this);
         else
             return false;
+
+        widhtTotal += 2 * factor.getRadius();
         return true;
     }
 
@@ -92,12 +105,17 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOp
 
         super.add(index, factor);
         factor.setParent(this);
+
+        widhtTotal += 2 * factor.getRadius();
     }
 
     @Override
     public boolean addAll(Collection<? extends Factor> groupFactor) {
         for (Factor factor : groupFactor)
             factor.setParent(this);
+
+        widhtTotal += ((GroupFactor) groupFactor).widhtTotal;
+
         return super.addAll(groupFactor);
     }
 
@@ -105,6 +123,9 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOp
     public boolean addAll(int index, Collection<? extends Factor> groupFactor) {
         for (Factor factor : groupFactor)
             factor.setParent(this);
+
+        widhtTotal += ((GroupFactor) groupFactor).widhtTotal;
+
         return super.addAll(index, groupFactor);
     }
 
@@ -146,6 +167,9 @@ public class GroupFactor extends ArrayList<Factor> implements TermValue, GroupOp
     @Override
     public void free(Operand element) {
         super.remove(element);
+
+        widhtTotal -= 2 * element.getRadius();
+
         onUpdate();
     }
 

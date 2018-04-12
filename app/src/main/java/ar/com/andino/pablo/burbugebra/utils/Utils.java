@@ -54,11 +54,9 @@ public class Utils {
 
         Bitmap bubbleBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        Paint.FontMetrics fontMetrics = textPaint.getFontMetrics();
-
         // Initialize a new Canvas instance
         Canvas canvas = new Canvas(bubbleBitmap);
-        canvas.drawColor(Color.TRANSPARENT);
+        canvas.drawColor(Color.WHITE);
         canvas.drawText(
                 text,
                 width / 2,

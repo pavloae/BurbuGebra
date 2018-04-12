@@ -14,6 +14,8 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOperand {
 
     private Parent parent;
+    public int yGlobalCenter;
+    public int widhtTotal;
 
     public GroupTerm() {
         super();
@@ -24,17 +26,26 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOper
         addAll(Arrays.asList(terms));
     }
 
+    public void setyGlobalCenter(int yGlobalCenter) {
+        this.yGlobalCenter = yGlobalCenter;
+
+        for (Term term : this)
+            term.setCenterY(yGlobalCenter);
+
+    }
+
     public void free(Term value){
         super.remove(value);
+        this.widhtTotal -= 2 * value.getRadius();
         this.onUpdate();
     }
 
     private void onUpdate() {
 
-        if (this.parent instanceof Equation && super.size() == 0)
+        if (this.parent instanceof Equation && super.size() == 0){
             super.add(new Term());
-
-        else if (
+            this.widhtTotal = (int) get(0).getRadius();
+        } else if (
                 this.parent instanceof Equation
                         && super.size() == 1
                         && super.get(0).value instanceof GroupFactor
@@ -55,6 +66,8 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOper
             term.setParent(this);
         else
             return false;
+
+        widhtTotal += 2 * term.getRadius();
         return true;
     }
 
@@ -62,12 +75,18 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOper
     public void add(int index, Term term) {
         super.add(index, term);
         term.setParent(this);
+
+        widhtTotal += 2 * term.getRadius();
+
     }
 
     @Override
     public boolean addAll(Collection<? extends Term> groupTerm) {
         for (Term term : groupTerm)
             term.setParent(this);
+
+        widhtTotal += ((GroupTerm) groupTerm).widhtTotal;
+
         return super.addAll(groupTerm);
     }
 
@@ -75,6 +94,9 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOper
     public boolean addAll(int index, Collection<? extends Term> groupTerm) {
         for (Term term : groupTerm)
             term.setParent(this);
+
+        widhtTotal += ((GroupTerm) groupTerm).widhtTotal;
+
         return super.addAll(index, groupTerm);
     }
 
@@ -117,6 +139,9 @@ public class GroupTerm extends ArrayList<Term> implements FactorValue, GroupOper
     @Override
     public void free(Operand element) {
         super.remove(element);
+
+        widhtTotal -= 2 * element.getRadius();
+
         onUpdate();
     }
 

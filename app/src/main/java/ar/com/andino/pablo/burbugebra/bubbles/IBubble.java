@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 
-public interface InterfazBurbuja {
+public interface IBubble {
 
-    InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius);
+    IBubble setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius);
 
     float getCenterX();
 

@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.support.annotation.NonNull;
 
-public abstract class Bubble implements InterfazBurbuja {
+public abstract class Bubble implements IBubble {
 
     private int left, top;
 
@@ -25,7 +25,7 @@ public abstract class Bubble implements InterfazBurbuja {
     }
 
     @Override
-    public InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
+    public IBubble setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;

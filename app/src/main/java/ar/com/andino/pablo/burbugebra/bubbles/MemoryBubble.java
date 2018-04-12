@@ -26,7 +26,7 @@ public class MemoryBubble extends Bubble {
     }
 
     @Override
-    public InterfazBurbuja setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
+    public IBubble setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius) {
         return null;
     }
 
