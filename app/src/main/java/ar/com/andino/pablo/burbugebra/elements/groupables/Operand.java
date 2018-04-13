@@ -137,7 +137,6 @@ public abstract class Operand implements IBubble, Cloneable {
             paint.setTextAlign(Paint.Align.CENTER);
             paint.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
         }
-
         return paint;
     }
 
@@ -246,10 +245,6 @@ public abstract class Operand implements IBubble, Cloneable {
     @Override
     public void setCenterY(float centerY) {
         this.centerY = centerY;
-        if (value instanceof GroupFactor)
-            ((GroupFactor) value).setyGlobalCenter((int) centerY);
-        if (value instanceof GroupTerm)
-            ((GroupTerm) value).setyGlobalCenter((int) centerY);
     }
 
     @Override

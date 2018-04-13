@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -14,6 +17,8 @@ import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
 public class OperationsView extends View {
+
+    private Paint paint;
 
     public static final float T = 2000f;
     public static float radius;
@@ -34,6 +39,10 @@ public class OperationsView extends View {
         super(context);
         bitmapBubble = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue);
         backGroundGame = BitmapFactory.decodeResource(getResources(), R.drawable.under_sea_1);
+
+        paint = new Paint();
+        paint.setColor(Color.RED);
+
     }
 
     @Override
@@ -44,15 +53,19 @@ public class OperationsView extends View {
         A = radius / 10f;
         k = (float) (2 * Math.PI / getWidth());
         OperationsView.w = (float) (2.0 * Math.PI / T);
-
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(backGroundGame, 0, 0, null);
+
+        canvas.drawLine(getWidth() / 2, 0, getWidth() / 2, getHeight(), paint);
+        canvas.drawLine(0, getHeight() / 2, getWidth(), getHeight() / 2, paint);
+
         if (equation != null)
             equation.onDraw(canvas);
+
     }
 
     @Override
@@ -62,7 +75,9 @@ public class OperationsView extends View {
 
     public void initBubbles() {
 
-        equation = new Equation();
+        equation = new Equation()
+                .setXGlobalCenter(getWidth() / 2)
+                .setYGlobalCenter(getHeight() / 2);
 
         Term t12 = new Term(12);
         t12.setBubbleBitmap(bitmapBubble);
@@ -79,9 +94,6 @@ public class OperationsView extends View {
         ((GroupTerm) equation.getRightMember()).add(t3_5);
 
         ((GroupTerm) equation.getRightMember()).add(t2_8);
-
-        equation.setYGlobalCenter(getHeight() / 2);
-        equation.setXGlobalCenter(getWidth() / 2);
 
     }
 
