@@ -21,7 +21,7 @@ public abstract class Bubble implements IBubble {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
-        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getBubbleRadius()), (int) (2 * getBubbleRadius()), false);
     }
 
     @Override
@@ -29,22 +29,22 @@ public abstract class Bubble implements IBubble {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
-        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getBubbleRadius()), (int) (2 * getBubbleRadius()), false);
         return this;
     }
 
     @Override
-    public float getCenterX() {
+    public float getBubbleCenterX() {
         return centerX;
     }
 
     @Override
-    public float getCenterY() {
+    public float getBubbleCenterY() {
         return centerY;
     }
 
     @Override
-    public float getRadius() {
+    public float getBubbleRadius() {
         return radius;
     }
 
@@ -54,17 +54,17 @@ public abstract class Bubble implements IBubble {
     }
 
     @Override
-    public void setCenterX(float centerX) {
+    public void setBubbleCenterX(float centerX) {
         this.centerX = centerX;
     }
 
     @Override
-    public void setCenterY(float centerY) {
+    public void setBubbleCenterY(float centerY) {
         this.centerY = centerY;
     }
 
     @Override
-    public void setRadius(float radius) {
+    public void setBubbleRadius(float radius) {
         this.radius = radius;
         if (radius <= 0) {
             this.bitmap = null;
@@ -79,15 +79,15 @@ public abstract class Bubble implements IBubble {
 
     @Override
     public void setBubbleBitmap(Bitmap bubbleBitmap) {
-        this.bitmap = Bitmap.createScaledBitmap(bubbleBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bitmap = Bitmap.createScaledBitmap(bubbleBitmap, (int) (2 * getBubbleRadius()), (int) (2 * getBubbleRadius()), false);
     }
 
     @Override
     public boolean isTouched(float screenX, float screenY) {
         return Math.sqrt(
-                Math.pow(Math.abs(screenX-getCenterX()), 2) +
-                        Math.pow(Math.abs(screenY-getCenterY()), 2)
-        ) <= getRadius();
+                Math.pow(Math.abs(screenX- getBubbleCenterX()), 2) +
+                        Math.pow(Math.abs(screenY- getBubbleCenterY()), 2)
+        ) <= getBubbleRadius();
     }
 
     @Override
@@ -112,10 +112,14 @@ public abstract class Bubble implements IBubble {
     }
 
     @Override
-    public void updateBubble(){
-        left = (int) (getCenterX() - getRadius());
-        top = (int) (getCenterY() - getRadius());
+    public void updateBubbleParams(){
+        left = (int) (getBubbleCenterX() - getBubbleRadius());
+        top = (int) (getBubbleCenterY() - getBubbleRadius());
         bitmap = getBubbleBitmap();
+    }
+
+    @Override
+    public void updateBubbleBitmap() {
     }
 
     public void setPressed(boolean isPressed) {
@@ -129,7 +133,7 @@ public abstract class Bubble implements IBubble {
     @Override
     public void setFillingBitmap(Bitmap bitmap, boolean scaleToBubble) {
 
-        if (bitmap == null || getRadius() <= 0 || getBubbleBitmap() == null)
+        if (bitmap == null || getBubbleRadius() <= 0 || getBubbleBitmap() == null)
             return;
 
         if (scaleToBubble){
@@ -140,14 +144,14 @@ public abstract class Bubble implements IBubble {
 
             bitmap = Bitmap.createScaledBitmap(
                     bitmap,
-                    (int) (getRadius() / bitmapRadius * bitmap.getWidth()),
-                    (int) (getRadius() / bitmapRadius * bitmap.getHeight()),
+                    (int) (getBubbleRadius() / bitmapRadius * bitmap.getWidth()),
+                    (int) (getBubbleRadius() / bitmapRadius * bitmap.getHeight()),
                     true
             );
 
         } else {
 
-            setRadius(
+            setBubbleRadius(
                     0.5f * (float) Math.sqrt(
                             Math.pow(bitmap.getWidth(), 2) + Math.pow(bitmap.getHeight(), 2)
                     )

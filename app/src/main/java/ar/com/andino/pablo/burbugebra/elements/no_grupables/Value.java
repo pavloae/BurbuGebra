@@ -1,8 +1,8 @@
 package ar.com.andino.pablo.burbugebra.elements.no_grupables;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Parent;
 
 public interface Value extends Cloneable {
-    Object clone() throws CloneNotSupportedException;
-    void setParent(Operand parent);
+    Value cloneAsValue() throws CloneNotSupportedException;
+    void setParent(Parent parent);
 }

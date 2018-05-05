@@ -1,4 +1,4 @@
 package ar.com.andino.pablo.burbugebra.elements.groupables;
 
-public interface FactorParent extends Parent {
+public interface FactorParent {
 }

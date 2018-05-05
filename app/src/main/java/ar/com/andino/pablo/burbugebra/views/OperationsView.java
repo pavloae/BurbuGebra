@@ -8,17 +8,22 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import ar.com.andino.pablo.burbugebra.R;
 import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Equation;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Factor;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Term;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
 public class OperationsView extends View {
 
-    private Paint paint;
+    public Typeface typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
+    public Paint paint;
 
     public static final float T = 2000f;
     public static float radius;
@@ -29,7 +34,8 @@ public class OperationsView extends View {
     private static Bitmap backGroundGame;
 
     public Equation equation;
-    public static Bitmap bitmapBubble;
+    public static Bitmap blueBubble;
+    public static Bitmap greenBubble;
 
     public OperationsView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
@@ -37,11 +43,15 @@ public class OperationsView extends View {
 
     public OperationsView(Context context) {
         super(context);
-        bitmapBubble = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue);
+        blueBubble = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_blue);
+        greenBubble = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_green);
         backGroundGame = BitmapFactory.decodeResource(getResources(), R.drawable.under_sea_1);
 
         paint = new Paint();
-        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(typeface);
 
     }
 
@@ -75,32 +85,77 @@ public class OperationsView extends View {
 
     public void initBubbles() {
 
-        equation = new Equation()
-                .setXGlobalCenter(getWidth() / 2)
-                .setYGlobalCenter(getHeight() / 2);
+        initEquation();
 
-        Term t12 = new Term(12);
-        t12.setBubbleBitmap(bitmapBubble);
-        t12.setRadius(30);
-        t12.updateBitmap();
-        Term t3_5 = new Term(3, 5);
-        t3_5.setBubbleBitmap(bitmapBubble);
-        Term t2_8 = new Term(2, 8);
-        t2_8.setBubbleBitmap(bitmapBubble);
+        equation.setXGlobalCenter(getWidth() / 2);
+        equation.setYGlobalCenter(getHeight() / 2);
 
+        for (Operand operand : equation.getLeftMember())
+            operand.setBubbleBitmap(blueBubble);
 
-        ((GroupTerm) equation.getLeftMember()).add(t12);
-
-        ((GroupTerm) equation.getRightMember()).add(t3_5);
-
-        ((GroupTerm) equation.getRightMember()).add(t2_8);
+        for (Operand operand : equation.getRightMember())
+            operand.setBubbleBitmap(blueBubble);
 
     }
 
-    public IBubble getPressedBubble(float xCoor, float yCoor){
-        return equation.getPressedBubble(xCoor, yCoor);
+    private void initEquation(){
+
+        // (-2)·(23+8·(-3))+5/2·8/3 = 5/2·X+8/3:3/5+2/3·X
+
+        equation = new Equation();
+
+        equation.setLeftMember(
+                new GroupTerm(
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(-2),
+                                        new Factor(
+                                                new GroupTerm(
+                                                        new Term(23),
+                                                        new Term(
+                                                                new GroupFactor(
+                                                                        new Factor(8),
+                                                                        new Factor(-3)
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        ),
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(5,2),
+                                        new Factor(8, 3)
+                                )
+                        )
+                )
+        );
+
+        equation.setRightMember(
+                new GroupTerm(
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(5,2),
+                                        new Factor("X")
+                                )
+                        ),
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(8, 3),
+                                        (Factor) new Factor(3, 5).toggleOperation()
+                                )
+                        ),
+                        new Term(
+                                new GroupFactor(
+                                        new Factor(2, 3),
+                                        new Factor("X")
+                                )
+                        )
+                )
+        );
+
+        Log.d("initEquation", equation.toString());
+
     }
-
-
 
 }

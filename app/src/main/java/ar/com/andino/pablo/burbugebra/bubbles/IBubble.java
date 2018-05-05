@@ -8,19 +8,21 @@ public interface IBubble {
 
     IBubble setBubble(@NonNull Bitmap bitmap, float centerX, float centerY, float radius);
 
-    float getCenterX();
+    float getBubbleCenterX();
 
-    float getCenterY();
+    float getBubbleCenterY();
 
-    float getRadius();
+    float getBubbleRadius();
 
     Bitmap getBubbleBitmap();
 
-    void setCenterX(float centerX);
+    void updateBubbleBitmap();
 
-    void setCenterY(float centerY);
+    void setBubbleCenterX(float centerX);
 
-    void setRadius(float radius);
+    void setBubbleCenterY(float centerY);
+
+    void setBubbleRadius(float radius);
 
     void setBubbleBitmap(Bitmap bubbleBitmap);
 
@@ -28,9 +30,13 @@ public interface IBubble {
 
     boolean isBursted();
 
-    void updateBubble();
+    void updateBubbleParams();
 
     void onDraw(Canvas canvas);
+
+    void setPressed(boolean isPressed);
+
+    //void setOnPosition(boolean onPosition);
 
     void onPressed();
 

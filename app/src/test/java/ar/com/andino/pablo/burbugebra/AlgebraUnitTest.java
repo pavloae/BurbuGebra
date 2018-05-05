@@ -234,7 +234,7 @@ public class AlgebraUnitTest {
 
         Assert.assertTrue(rational1.getParent() == term1);
 
-        Term term2 = new Term((Rational) rational1.clone());
+        Term term2 = new Term((Rational) rational1.cloneAsValue());
 
         Assert.assertTrue(term2.value != rational1);
 

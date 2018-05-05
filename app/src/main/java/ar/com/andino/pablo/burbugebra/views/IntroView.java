@@ -95,7 +95,7 @@ public class IntroView extends View {
                     long t0, t;
 
                     @Override
-                    public float getCenterY() {
+                    public float getBubbleCenterY() {
 
                         if (t0 == 0.0f)
                             t0 = System.currentTimeMillis();
@@ -105,12 +105,17 @@ public class IntroView extends View {
                         if (cycle)
                             return (float) (yf - A * Math.sin(w * t - k * fase));
 
-                        if (super.getCenterY() - t * velocidad <= yf) {
+                        if (super.getBubbleCenterY() - t * velocidad <= yf) {
                             fase = (w * t) / k;
                             cycle = true;
                         }
 
-                        return super.getCenterY() - t * velocidad;
+                        return super.getBubbleCenterY() - t * velocidad;
+
+                    }
+
+                    @Override
+                    public void updateBubbleBitmap() {
 
                     }
 
@@ -129,7 +134,7 @@ public class IntroView extends View {
                     long t0, t;
 
                     @Override
-                    public float getCenterY() {
+                    public float getBubbleCenterY() {
 
                         if (t0 == 0.0f)
                             t0 = System.currentTimeMillis();
@@ -139,12 +144,12 @@ public class IntroView extends View {
                         if (cycle)
                             return (float) (yf - A * Math.sin(w * t - k * fase));
 
-                        if (super.getCenterY() - t * velocidad <= yf) {
+                        if (super.getBubbleCenterY() - t * velocidad <= yf) {
                             fase = (w * t) / k;
                             cycle = true;
                         }
 
-                        return super.getCenterY() - t * velocidad;
+                        return super.getBubbleCenterY() - t * velocidad;
                     }
                 }
         );
@@ -161,7 +166,7 @@ public class IntroView extends View {
                     long t0, t;
 
                     @Override
-                    public float getCenterY() {
+                    public float getBubbleCenterY() {
 
                         if (t0 == 0.0f)
                             t0 = System.currentTimeMillis();
@@ -171,12 +176,12 @@ public class IntroView extends View {
                         if (cycle)
                             return (float) (yf - A * Math.sin(w * t - k * fase));
 
-                        if (super.getCenterY() - t * velocidad <= yf) {
+                        if (super.getBubbleCenterY() - t * velocidad <= yf) {
                             fase = (w * t) / k;
                             cycle = true;
                         }
 
-                        return super.getCenterY() - t * velocidad;
+                        return super.getBubbleCenterY() - t * velocidad;
                     }
                 }
         );
@@ -193,7 +198,7 @@ public class IntroView extends View {
                     long t0, t;
 
                     @Override
-                    public float getCenterY() {
+                    public float getBubbleCenterY() {
 
                         if (t0 == 0.0f)
                             t0 = System.currentTimeMillis();
@@ -203,12 +208,12 @@ public class IntroView extends View {
                         if (cycle)
                             return (float) (yf - A * Math.sin(w * t - k * fase));
 
-                        if (super.getCenterY() - t * velocidad <= yf) {
+                        if (super.getBubbleCenterY() - t * velocidad <= yf) {
                             fase = (w * t) / k;
                             cycle = true;
                         }
 
-                        return super.getCenterY() - t * velocidad;
+                        return super.getBubbleCenterY() - t * velocidad;
                     }
                 }
         );
@@ -248,15 +253,15 @@ public class IntroView extends View {
                     long t, t0;
 
                     @Override
-                    public float getCenterY() {
+                    public float getBubbleCenterY() {
 
                         if (t0 == 0.00f)
                             t0 = System.currentTimeMillis();
 
                         t = System.currentTimeMillis() - t0;
 
-                        if (super.getCenterY() - velocidad * t * t / (20 * getRadius()) > ye)
-                            return super.getCenterY() - velocidad * t * t / (20 * getRadius());
+                        if (super.getBubbleCenterY() - velocidad * t * t / (20 * getBubbleRadius()) > ye)
+                            return super.getBubbleCenterY() - velocidad * t * t / (20 * getBubbleRadius());
 
                         onPlop();
                         return 0;

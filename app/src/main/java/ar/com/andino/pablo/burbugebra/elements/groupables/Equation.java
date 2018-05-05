@@ -7,15 +7,20 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 import android.support.v4.os.OperationCanceledException;
+import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
-import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupOperand;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 
-public class Equation implements TermParent, FactorParent {
+public class Equation implements TermParent, FactorParent, Parent {
+
+    private Operand pressedOperand;
+    private boolean isPressed;
 
     private Typeface typeface;
     private int textSize;
@@ -23,6 +28,8 @@ public class Equation implements TermParent, FactorParent {
 
     private int xGlobalCenter;
     private int yGlobalCenter;
+
+    private int left, top;
     private Bitmap bitmap;
 
     private ArrayList<? extends Operand> leftMember, rightMember;
@@ -34,10 +41,18 @@ public class Equation implements TermParent, FactorParent {
         ((GroupTerm) rightMember).setParent(this);
     }
 
+    public void setTypeface(Typeface typeface) {
+        this.typeface = typeface;
+    }
+
     public Typeface getTypeface() {
         if (typeface == null)
             typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
         return typeface;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 
     public int getTextSize() {
@@ -46,7 +61,7 @@ public class Equation implements TermParent, FactorParent {
         return textSize;
     }
 
-    public Paint getPaint() {
+    private Paint getPaint() {
         if (paint == null) {
             paint = new Paint();
             paint.setStyle(Paint.Style.FILL);
@@ -58,30 +73,30 @@ public class Equation implements TermParent, FactorParent {
         return paint;
     }
 
-    public Equation setXGlobalCenter(int xGlobalCenter) {
+    public void setXGlobalCenter(int xGlobalCenter) {
         this.xGlobalCenter = xGlobalCenter;
-        return this;
     }
 
-    public Equation setYGlobalCenter(int yGlobalCenter) {
+    public void setYGlobalCenter(int yGlobalCenter) {
         this.yGlobalCenter = yGlobalCenter;
-        return this;
     }
 
     public ArrayList<? extends Operand> getLeftMember() {
         return leftMember;
     }
 
-    public void setLeftMember(@NonNull GroupTerm leftMember) {
+    public void setLeftMember(@NonNull ArrayList<? extends Operand> leftMember) {
         this.leftMember = leftMember;
+        ((GroupOperand) this.leftMember).setParent(this);
     }
 
     public ArrayList<? extends Operand> getRightMember() {
         return rightMember;
     }
 
-    public void setRightMember(@NonNull GroupTerm rightMember) {
+    public void setRightMember(@NonNull ArrayList<? extends Operand> rightMember) {
         this.rightMember = rightMember;
+        ((GroupOperand) this.rightMember).setParent(this);
     }
 
     public boolean changeMember(Operand operand) {
@@ -92,12 +107,20 @@ public class Equation implements TermParent, FactorParent {
         try {
 
             // Movemos un Term del GroupTerm de la izquierda al GroupTerm de la derecha
-            if (operand instanceof Term && leftMember.contains(operand) && rightMember instanceof GroupTerm)
-                    ((GroupTerm) rightMember).add((Term) operand.clone().toggleOperation());
+            if (operand instanceof Term && leftMember.contains(operand) && rightMember instanceof GroupTerm){
+                Operand operandClone = operand.clone();
+                operandClone.toggleOperation();
+                ((GroupTerm) rightMember).add((Term) operandClone);
+                operandClone.setPressed(false);
+            }
 
             // Movemos un Term del GroupTerm de la derecha al GroupTerm de la izquierda
-            else if (operand instanceof Term && rightMember.contains(operand) && leftMember instanceof GroupTerm)
-                ((GroupTerm) leftMember).add((Term) operand.clone().toggleOperation());
+            else if (operand instanceof Term && rightMember.contains(operand) && leftMember instanceof GroupTerm) {
+                Operand operandClone = operand.clone();
+                operandClone.toggleOperation();
+                ((GroupTerm) leftMember).add((Term) operandClone);
+                operandClone.setPressed(false);
+            }
 
             // Movemos un Term del GroupTerm de la izquierda al GroupFactor de la derecha
             else if (operand instanceof Term && leftMember.contains(operand) && rightMember instanceof GroupFactor)
@@ -149,97 +172,164 @@ public class Equation implements TermParent, FactorParent {
 
     }
 
-    private Bitmap getBitmap() {
+    public void initBitmap() {
 
-        if (bitmap == null) {
+        String text = "=";
+        Rect bound = new Rect();
 
-            String text = "=";
-            Rect bound = new Rect();
+        Paint paint = getPaint();
+        paint.getTextBounds(text, 0, text.length(), bound);
 
-            Paint paint = getPaint();
+        bitmap = Bitmap.createBitmap((int) paint.measureText(text), bound.height(), Bitmap.Config.ARGB_8888);
 
-            paint.getTextBounds(text, 0, text.length(), bound);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawText(
+                text,
+                bitmap.getWidth() / 2,
+                bound.height() - bound.bottom,
+                getPaint()
+        );
 
-            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+        left = xGlobalCenter - bitmap.getWidth() / 2;
+        top = yGlobalCenter - bitmap.getHeight() / 2;
 
-            float ascent = paint.ascent();
-            float descent = paint.descent();
+    }
 
-            int widht = (int) paint.measureText(text);
-            int height = (int) -fontMetrics.ascent;
+    @WorkerThread
+    public void updateParams(){
 
-            bitmap = Bitmap.createBitmap(widht, height, Bitmap.Config.ARGB_8888);
+        if (bitmap == null)
+            initBitmap();
 
-            int xPos = bound.width() / 2;
-            int yPos = height;
+        left = xGlobalCenter - bitmap.getWidth() / 2;
+        top = yGlobalCenter - bitmap.getHeight() / 2;
 
-            Canvas canvas = new Canvas(bitmap);
-            canvas.drawColor(Color.WHITE);
-            canvas.drawText(
-                    text,
-                    xPos,
-                    yPos,
-                    getPaint()
-            );
-        }
-        return bitmap;
+        ((GroupOperand) leftMember).updateParams();
+        ((GroupOperand) rightMember).updateParams();
     }
 
     public void onDraw(Canvas canvas) {
 
-        canvas.drawBitmap(
-                getBitmap(),
-                xGlobalCenter - getBitmap().getWidth() / 2,
-                yGlobalCenter - getBitmap().getHeight() / 2,
-                null
-        );
-
         for (Operand operand : leftMember)
             operand.onDraw(canvas);
 
         for (Operand operand : rightMember)
             operand.onDraw(canvas);
 
+        if (bitmap != null)
+            canvas.drawBitmap(bitmap, left, top,null);
+
     }
 
-    public void updateBubble() {
+    private void group(Operand operand) {
 
-        for (Operand operand : leftMember){
-            operand.updateBubble();
+        if (operand == null)
+            return;
+
+        if (operand.isContentOn((GroupOperand) leftMember) && operand.getCenterX() > xGlobalCenter)
+            changeMember(operand);
+
+        if (operand.isContentOn((GroupOperand) rightMember) && operand.getCenterX() < xGlobalCenter)
+            changeMember(operand);
+
+
+    }
+
+    public void onTouch(MotionEvent motionEvent) {
+
+        motionLabel:
+        switch (motionEvent.getAction()) {
+
+            case MotionEvent.ACTION_DOWN:
+
+                if (Math.abs(motionEvent.getX() - xGlobalCenter) < getWidth() / 2 && Math.abs(motionEvent.getY() - yGlobalCenter) < getHeight() / 2) {
+                    isPressed = true;
+                    break;
+                }
+
+                for (Operand operand : leftMember){
+                    if ((pressedOperand = operand.getBubbleTouched(motionEvent.getX(), motionEvent.getY())) != null){
+                        pressedOperand.setPressed(true);
+                        break motionLabel;
+                    }
+                }
+
+                for (Operand operand : rightMember) {
+                    if ((pressedOperand = operand.getBubbleTouched(motionEvent.getX(), motionEvent.getY())) != null){
+                        pressedOperand.setPressed(true);
+                        break motionLabel;
+                    }
+                }
+
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                if (pressedOperand != null){
+                    group(pressedOperand);
+                    pressedOperand.setPressed(false);
+                    pressedOperand.updateTextBitmap();
+                }
+
+                pressedOperand = null;
+                isPressed = false;
+
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+
+                if (pressedOperand != null){
+                    pressedOperand.setBubbleCenterX(
+                            motionEvent.getX()
+                    );
+                    pressedOperand.setBubbleCenterY(
+                            motionEvent.getY()
+                    );
+                } else if (isPressed) {
+                    setXGlobalCenter((int) (motionEvent.getX()));
+                    setYGlobalCenter((int) (motionEvent.getY()));
+                }
+
+                break;
+
         }
 
-        for (Operand operand : rightMember)
-            operand.updateBubble();
+    }
+
+    public float getCenterX(GroupOperand member) {
+
+        return (member == leftMember) ?
+                xGlobalCenter - (getWidth() / 2 + member.getWidth() / 2):
+                xGlobalCenter + (getWidth() / 2 + member.getWidth() / 2);
 
     }
 
-    public void actionUp(float xCoor, float yCoor){
-
-        for (Operand operand : leftMember)
-            if (operand.isTouched(xCoor, yCoor))
-                operand.updateTextBitmap();
-
-        for (Operand operand : rightMember)
-            if (operand.isTouched(xCoor, yCoor))
-                operand.updateTextBitmap();
-
+    @Override
+    public float getCenterX() {
+        return xGlobalCenter;
     }
 
-    public IBubble getPressedBubble(float xCoor, float yCoor) {
-        for (Operand operand : leftMember)
-            if (operand.isTouched(xCoor, yCoor))
-                return operand;
+    @Override
+    public float getCenterY() {
+        return yGlobalCenter;
+    }
 
-        for (Operand operand : rightMember)
-            if (operand.isTouched(xCoor, yCoor))
-                return operand;
+    @Override
+    public float getWidth() {
+        if (bitmap == null)
+            return 0;
+        return bitmap.getWidth();
+    }
 
-        return null;
+    public float getHeight() {
+        if (bitmap == null)
+            return 0;
+        return bitmap.getHeight();
     }
 
     @Override
     public String toString() {
-        return leftMember.toString() + " = " + rightMember.toString();
+        return leftMember.toString() + "=" + rightMember.toString();
     }
 
     // Interface Parent

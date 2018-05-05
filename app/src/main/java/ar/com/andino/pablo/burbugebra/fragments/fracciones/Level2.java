@@ -24,8 +24,6 @@ public class Level2 extends Fragment implements View.OnTouchListener {
     OperationsView operationsView;
     Animation animation;
 
-    IBubble pressedBubble;
-
     public Level2() {
         super();
     }
@@ -106,28 +104,10 @@ public class Level2 extends Fragment implements View.OnTouchListener {
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         view.performClick();
-        switch (motionEvent.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                pressedBubble = operationsView.getPressedBubble(motionEvent.getX(), motionEvent.getY());
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (pressedBubble != null){
-                    pressedBubble.setCenterX(motionEvent.getX());
-                    pressedBubble.setCenterY(motionEvent.getY());
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                if (pressedBubble != null)
-                    ((Operand) pressedBubble).updateTextBitmap();
-                pressedBubble = null;
-                break;
 
-        }
+        operationsView.equation.onTouch(motionEvent);
+
         return true;
-    }
-
-    private void update(final float x, final float y) {
-
     }
 
     public class Animation extends Thread{
@@ -158,7 +138,9 @@ public class Level2 extends Fragment implements View.OnTouchListener {
                 while (animationIsActive) {
                     frameStartTime = System.currentTimeMillis();
 
-                    operationsView.equation.updateBubble();
+                    operationsView.equation.updateParams();
+
+                    operationsView.postInvalidate();
 
                     frameTime = System.currentTimeMillis() - frameStartTime;
                     if (frameTime < MAX_FRAME_TIME) {
@@ -168,7 +150,7 @@ public class Level2 extends Fragment implements View.OnTouchListener {
                             e.printStackTrace();
                         }
                     }
-                    operationsView.postInvalidate();
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

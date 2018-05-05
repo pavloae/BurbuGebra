@@ -89,12 +89,12 @@ public class UnderSeaView extends View {
                         float fase;
 
                         @Override
-                        public float getCenterY() {
+                        public float getBubbleCenterY() {
 
                             if (t0 == 0.0f) {
                                 t0 = System.currentTimeMillis();
-                                fase = (float) ((w * t) / k + 2 * Math.PI * super.getCenterX() / getWidth() / k);
-                                yf = super.getCenterY();
+                                fase = (float) ((w * t) / k + 2 * Math.PI * super.getBubbleCenterX() / getWidth() / k);
+                                yf = super.getBubbleCenterY();
                             }
 
                             t = System.currentTimeMillis() - t0;
@@ -113,7 +113,7 @@ public class UnderSeaView extends View {
                         @Override
                         public void onPressed() {
                             super.onPressed();
-                            updateBubble();
+                            updateBubbleParams();
 
                         }
 

@@ -35,7 +35,12 @@ public class MemoryBubble extends Bubble {
         if (this.equals(MemoryBubble.burbuja1) || this.equals(MemoryBubble.burbuja2)) {
             return super.getBubbleBitmap();
         }
-        return Bitmap.createScaledBitmap(MemoryBubble.hiddenBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        return Bitmap.createScaledBitmap(MemoryBubble.hiddenBitmap, (int) (2 * getBubbleRadius()), (int) (2 * getBubbleRadius()), false);
+    }
+
+    @Override
+    public void updateBubbleBitmap() {
+
     }
 
     public static void setTypeface(Typeface typeface) {

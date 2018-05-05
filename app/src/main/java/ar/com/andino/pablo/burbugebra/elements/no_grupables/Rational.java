@@ -5,11 +5,10 @@ import android.annotation.SuppressLint;
 import java.util.HashMap;
 import java.util.Locale;
 
-import ar.com.andino.pablo.burbugebra.elements.groupables.FactorParent;
-import ar.com.andino.pablo.burbugebra.elements.groupables.TermParent;
+import ar.com.andino.pablo.burbugebra.elements.groupables.Parent;
 import ar.com.andino.pablo.burbugebra.elements.groupables.Operand;
 
-public final class Rational implements FactorValue, TermValue {
+public final class Rational implements Value, FactorValue, TermValue {
 
     private Operand parent;
 
@@ -44,15 +43,15 @@ public final class Rational implements FactorValue, TermValue {
         this.denominator = denominator;
     }
 
+    public Operand getParent() {
+        return parent;
+    }
+
     public void free(){
         if (parent != null)
             parent.free();
         parent = null;
         name = null;
-    }
-
-    public Operand getParent() {
-        return parent;
     }
 
     public void simplify() {
@@ -84,16 +83,14 @@ public final class Rational implements FactorValue, TermValue {
         this.isVariable = false;
     }
 
-    public Rational times(Rational rational){
+    public void times(Rational rational){
         this.numerator *= rational.numerator;
         this.denominator *= rational.denominator;
-        return this;
     }
 
-    public Rational plus(Rational rational){
+    public void plus(Rational rational){
         this.numerator = this.numerator * rational.denominator + this.denominator * rational.numerator;
         this.denominator = this.denominator * rational.denominator;
-        return this;
     }
 
     @Override
@@ -119,35 +116,21 @@ public final class Rational implements FactorValue, TermValue {
 
     }
 
-    // Interface TermValue
+    // Interface Value
 
     @Override
-    public void setParent(FactorParent parent) {
-        this.parent = (Operand) parent;
-    }
-
-    // Interface FactorValue
-
-    @Override
-    public void setParent(TermParent parent) {
-        this.parent = (Operand) parent;
-    }
-
-    // Interface Cloneable
-
-    @Override
-    public Rational clone() throws CloneNotSupportedException {
-
+    public Rational cloneAsValue() throws CloneNotSupportedException {
         Rational rational = (Rational) super.clone();
-        rational.setParent((FactorParent) null);
+        rational.setParent(null);
         return rational;
-
     }
 
     @Override
-    public void setParent(Operand parent) {
-        this.parent = parent;
+    public void setParent(Parent parent) {
+        if (parent == null || parent instanceof Operand)
+            this.parent = (Operand) parent;
     }
+
 
     private static HashMap<Integer, Integer> getPrimeFactors(int number) {
 

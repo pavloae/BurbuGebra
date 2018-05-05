@@ -48,8 +48,6 @@ public class Factor extends Operand implements TermParent {
 
         toggleOperation();
 
-        updateTextBitmap();
-
     }
 
     @Override
@@ -134,8 +132,6 @@ public class Factor extends Operand implements TermParent {
 
         factorB.free();
 
-        updateTextBitmap();
-
         return true;
     }
 
@@ -148,8 +144,8 @@ public class Factor extends Operand implements TermParent {
                 ((GroupTerm) this.value).add(
                         new Term(
                                 new GroupFactor(
-                                        new Factor(factorA.clone()),
-                                        new Factor(((Rational) term.getValue()).clone())
+                                        new Factor(factorA.cloneAsValue()),
+                                        new Factor(((Rational) term.getValue()).cloneAsValue())
                                 )
                         )
                 );
@@ -157,10 +153,11 @@ public class Factor extends Operand implements TermParent {
 
             if (term.getValue() instanceof GroupFactor){
                 GroupFactor groupFactor = new GroupFactor();
-                groupFactor.add(new Factor(factorA.clone()));
+                groupFactor.add(new Factor(factorA.cloneAsValue()));
+
                 groupFactor.addAll(((GroupFactor) term.getValue()).clone());
 
-                ((GroupTerm) this.value).add(new Term(groupFactor));
+                ((GroupTerm) getValue()).add(new Term(groupFactor));
             }
 
         }
@@ -177,13 +174,13 @@ public class Factor extends Operand implements TermParent {
                 term.setValue(
                         new GroupFactor(
                                 new Factor((Rational) term.getValue()),
-                                new Factor(factorB.clone())
+                                new Factor(factorB.cloneAsValue())
                         )
                 );
             }
 
             if (term.getValue() instanceof GroupFactor){
-                ((GroupFactor) term.getValue()).add(new Factor(factorB.clone()));
+                ((GroupFactor) term.getValue()).add(new Factor(factorB.cloneAsValue()));
             }
 
         }
@@ -204,12 +201,12 @@ public class Factor extends Operand implements TermParent {
                 GroupFactor groupFactor = new GroupFactor();
 
                 if (termA.value instanceof Rational)
-                    groupFactor.add(new Factor(((Rational) termA.value).clone()));
+                    groupFactor.add(new Factor(((Rational) termA.value).cloneAsValue()));
                 else
                     groupFactor.addAll(((GroupFactor) termA.value).clone());
 
                 if (termB.value instanceof Rational)
-                    groupFactor.add(new Factor(((Rational) termB.value).clone()));
+                    groupFactor.add(new Factor(((Rational) termB.value).cloneAsValue()));
                 else
                     groupFactor.addAll(((GroupFactor) termB.value).clone());
 
@@ -249,21 +246,38 @@ public class Factor extends Operand implements TermParent {
     }
 
     @Override
+    public String getOperator() {
+        return (operation == 1) ? "·" : ":";
+    }
+
+    @Override
+    public FactorValue getValue(){
+        return (FactorValue) value;
+    }
+
+    @Override
+    public GroupFactor getParentGroup() {
+        return (GroupFactor) parent;
+    }
+
+    @Override
     public String toString() {
+
         if (value == null)
             return "";
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (parent == null || getPositionOnParent() > 0)
-            stringBuilder.append((operation == 1) ? "·" : ":");
+        if (parent == null || parent.indexOf(this) > 0)
+            stringBuilder.append(getOperator());
 
-        if (value instanceof GroupTerm && invert)
-            stringBuilder.append("(1/(%s))");
-        else if (value instanceof GroupTerm && !invert)
-            stringBuilder.append("(%s)");
-        else
+        if (value instanceof Rational)
             stringBuilder.append("%s");
+        else if (invert)
+            stringBuilder.append("(1/(%s))");
+        else
+            stringBuilder.append("(%s)");
+
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
@@ -285,7 +299,7 @@ public class Factor extends Operand implements TermParent {
                         || this.value instanceof GroupTerm
                         && ((GroupTerm) this.value).size() == 0
                 ) {
-            ((GroupFactor) parent).free(this);
+            getParentGroup().free(this);
             this.parent = null;
             this.value = null;
             return;
@@ -308,13 +322,18 @@ public class Factor extends Operand implements TermParent {
                         && ((GroupTerm) this.value).size() == 1
                         && ((GroupTerm) this.value).get(0).value instanceof GroupFactor
                 ) {
-            ((GroupFactor) parent).addAll(
+            getParentGroup().addAll(
                     getPositionOnParent(),
                     ((GroupFactor) ((GroupTerm) this.value).get(0).value).clone()
             );
-            ((GroupFactor) parent).free(this);
+            getParentGroup().free(this);
         }
 
+    }
+
+    @Override
+    public float getWidth(){
+        return super.getWidth();
     }
 
 }

@@ -3,6 +3,7 @@ package ar.com.andino.pablo.burbugebra.elements.groupables;
 import java.util.Locale;
 
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
+import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupOperand;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.TermValue;
@@ -19,10 +20,6 @@ public class Term extends Operand implements FactorParent {
 
     public Term(int numerator, int denominator) {
         super(numerator, denominator);
-    }
-
-    public Term(String name) {
-        super(name);
     }
 
     public Term(TermValue value){
@@ -120,7 +117,7 @@ public class Term extends Operand implements FactorParent {
     private boolean operateOnFactor(Rational termA, GroupTerm factorB) throws CloneNotSupportedException {
         this.setValue(
                 new GroupFactor(
-                        new Factor(termA.clone()),
+                        new Factor(termA.cloneAsValue()),
                         new Factor(factorB.clone())
                 )
         );
@@ -131,7 +128,7 @@ public class Term extends Operand implements FactorParent {
     private boolean operateOnFactor(GroupFactor termA, Rational factorB) throws CloneNotSupportedException {
 
         termA.add(
-                new Factor(factorB.clone())
+                new Factor(factorB.cloneAsValue())
         );
         factorB.free();
         return true;
@@ -163,7 +160,7 @@ public class Term extends Operand implements FactorParent {
 
     private boolean operateOnTerm(Rational termA, GroupFactor termB){
 
-        ((GroupTerm) getParent()).add(getPositionOnParent()+1, new Term(termB.clone()));
+        getParentGroup().add(getPositionOnParent()+1, new Term(termB.clone()));
 
         termB.getParent().free();
 
@@ -175,7 +172,7 @@ public class Term extends Operand implements FactorParent {
         if (termA.getVariable() != null ^ termB.isVariable)
             return false;
 
-        ((GroupTerm) getParent()).add(getPositionOnParent()+1, (Term) termB.getParent().clone());
+        getParentGroup().add(getPositionOnParent()+1, (Term) termB.getParent().clone());
         termB.getParent().free();
         return true;
     }
@@ -197,7 +194,7 @@ public class Term extends Operand implements FactorParent {
             termA.getCoeficient().plus(termB.getCoeficient());
 
         else
-            ((GroupTerm) getParent()).add(getPositionOnParent()+1, new Term(termB.clone()));
+            getParentGroup().add(getPositionOnParent()+1, new Term(termB.clone()));
 
         termB.getParent().free();
 
@@ -205,19 +202,32 @@ public class Term extends Operand implements FactorParent {
     }
 
     @Override
+    public String getOperator() {
+        return (operation == 1) ? "+" : "-";
+    }
+
+    @Override
+    public TermValue getValue(){
+        return (TermValue) value;
+    }
+
+    @Override
+    public GroupTerm getParentGroup() {
+        return (GroupTerm) parent;
+    }
+
+    @Override
     public String toString() {
+
         if (value == null)
             return "";
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (parent == null || getPositionOnParent() > 0)
-            stringBuilder.append((operation == 1) ? "+" : "-");
+        if (parent == null || parent.indexOf(this) > 0)
+            stringBuilder.append(getOperator());
 
-        if (this.value instanceof GroupTerm && parent != null && !((GroupTerm)parent).isEmpty())
-            stringBuilder.append("(%s)");
-        else
-            stringBuilder.append("%s");
+        stringBuilder.append("%s");
 
         return String.format(Locale.ENGLISH, stringBuilder.toString(), value.toString());
     }
@@ -238,7 +248,7 @@ public class Term extends Operand implements FactorParent {
                         || this.value instanceof GroupFactor
                         && ((GroupFactor) this.value).size() == 0
                 ) {
-            ((GroupTerm) parent).free(this);
+            getParentGroup().free(this);
             this.parent = null;
             this.value = null;
             return;
@@ -262,15 +272,14 @@ public class Term extends Operand implements FactorParent {
                         && ((GroupFactor) this.value).size() == 1
                         && ((GroupFactor) this.value).get(0).value instanceof GroupTerm
                 ) {
-            ((GroupTerm) parent).addAll(
+
+            getParentGroup().addAll(
                     getPositionOnParent(),
-                    ((GroupTerm) ((GroupFactor) this.value).get(0).value).clone()
+                    ((GroupTerm) ((GroupFactor) getValue()).get(0).getValue()).clone()
             );
-            ((GroupTerm) parent).free(this);
+            getParentGroup().free(this);
         }
 
     }
-
-
 
 }

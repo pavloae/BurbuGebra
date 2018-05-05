@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
 import ar.com.andino.pablo.burbugebra.bubbles.IBubble;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupFactor;
@@ -15,25 +16,26 @@ import ar.com.andino.pablo.burbugebra.elements.no_grupables.GroupTerm;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Rational;
 import ar.com.andino.pablo.burbugebra.elements.no_grupables.Value;
 
-public abstract class Operand implements IBubble, Cloneable {
+public abstract class Operand implements Parent, IBubble, Cloneable {
 
     public static Typeface typeface;
     public static int textSize = 64;
 
+    private float left, top;
     private Bitmap bitmap;
 
-    private int left, top;
     private Bitmap bubbleBitmap;
-    private float centerX;
-    private float centerY;
+    public float centerX;
+    public float centerY;
     private float radius;
-    public boolean isBursted;
-    protected boolean isPressed;
+    private boolean isPressed;
 
     public GroupOperand parent;
     public Value value;
+
     private Paint paint;
     private Rect bound;
+    private String text;
     private Bitmap textBitmap;
     public int operation = 1;
 
@@ -62,12 +64,11 @@ public abstract class Operand implements IBubble, Cloneable {
         this.value.setParent(this);
     }
 
-    public Operand setParent(GroupOperand parent){
+    public void setParent(GroupOperand parent){
         this.parent = parent;
-        return this;
     }
 
-    public GroupOperand getParent() {
+    public GroupOperand getParentGroup() {
         return parent;
     }
 
@@ -77,10 +78,9 @@ public abstract class Operand implements IBubble, Cloneable {
         return parent.indexOf(this);
     }
 
-    public Operand setValue(Value value) {
+    public void setValue(Value value) {
         this.value = value;
         this.value.setParent(this);
-        return this;
     }
 
     public Value getValue() {
@@ -88,6 +88,8 @@ public abstract class Operand implements IBubble, Cloneable {
     }
 
     abstract void invert();
+
+    public abstract String getOperator();
 
     public boolean group(Operand operand) {
 
@@ -122,12 +124,6 @@ public abstract class Operand implements IBubble, Cloneable {
         this.value = null;
     }
 
-    public Rect getRect(){
-        Rect rect = new Rect();
-        getPaint().getTextBounds(toString(), 0, toString().length(), rect);
-        return bound;
-    }
-
     private Paint getPaint(){
         if (paint == null){
             paint = new Paint();
@@ -135,50 +131,124 @@ public abstract class Operand implements IBubble, Cloneable {
             paint.setColor(Color.BLACK);
             paint.setTextSize(textSize);
             paint.setTextAlign(Paint.Align.CENTER);
-            paint.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+            paint.setTypeface(getTypeface());
         }
         return paint;
     }
 
-    public void updateTextBitmap() {
+    @WorkerThread
+    public void updateParams() {
 
-        Rect bound = new Rect();
-        getPaint().getTextBounds(toString(), 0, toString().length(), bound);
-        int wText = (int) getPaint().measureText(toString());
-        int hText = bound.height();
-
-        textBitmap = Bitmap.createBitmap(wText, hText, Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(textBitmap);
-        canvas.drawColor(Color.TRANSPARENT);
-        canvas.drawText(toString(),wText / 2, hText, getPaint());
-
-        setRadius((float) (Math.sqrt(Math.pow(wText, 2) + Math.pow(hText, 2)) / 2));
+        centerX = getCenterX();
+        centerY = getCenterY();
 
         updateBitmap();
 
+        left = (int) (centerX - getWidth() / 2);
+        top = (int) (centerY - getWidth() / 2);
+
+        if (value instanceof GroupOperand)
+            ((GroupOperand) value).updateParams();
+
     }
 
-    public void updateBitmap(){
+    @Override
+    public float getCenterX() {
 
-        if (radius == 0)
+        if (parent == null || isPressed)
+            return this.centerX;
+
+        float centerX = parent.getCenterX(this);
+        float delta = this.centerX - centerX;
+
+        if (Math.abs(delta) > 1.0f)
+            this.centerX -= 0.1f * delta;
+        else if (Math.abs(delta) > 0.0f)
+            this.centerX = centerX;
+
+        return this.centerX;
+    }
+
+    @Override
+    public float getCenterY() {
+
+        if (parent == null || isPressed)
+            return this.centerY;
+
+        float centerY = parent.getCenterY(this);
+        float delta = this.centerY - centerY;
+
+        if (Math.abs(delta) > 1.0f)
+            this.centerY -= 0.1f * delta;
+        else if (Math.abs(delta) > 0.0f)
+            this.centerY = centerY;
+
+        return this.centerY;
+
+    }
+
+    private void updateBitmap(){
+
+        updateTextBitmap();
+        updateBubbleBitmap();
+
+        if (textBitmap == null && bubbleBitmap == null)
+            bitmap = null;
+
+        else if (textBitmap != null && bubbleBitmap != null) {
+            bitmap = Bitmap.createBitmap(
+                    bubbleBitmap.getWidth(),
+                    bubbleBitmap.getHeight(),
+                    Bitmap.Config.ARGB_8888
+            );
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawBitmap(
+                    textBitmap,
+                    bitmap.getWidth() / 2 - textBitmap.getWidth() / 2,
+                    bitmap.getHeight() / 2 - textBitmap.getHeight() / 2,
+                    null
+            );
+            canvas.drawBitmap(bubbleBitmap, 0, 0, null);
+        }
+
+        else if (textBitmap != null)
+            bitmap = textBitmap;
+
+        else
+            bitmap = bubbleBitmap;
+
+    }
+
+    public void updateTextBitmap() {
+
+        if (!(value instanceof Rational)){
+            textBitmap = null;
+            return;
+        }
+
+        if (toString().equals(text))
             return;
 
-        bitmap = Bitmap.createBitmap((int) (2 * radius), (int) (2 * radius), Bitmap.Config.ARGB_8888);
+        text = toString();
 
-        Canvas canvas = new Canvas(bitmap);
+        if (bound == null)
+            bound = new Rect();
 
-        if (textBitmap != null)
-            canvas.drawBitmap(textBitmap, radius - textBitmap.getWidth() / 2, radius - textBitmap.getHeight() / 2, null);
+        getPaint().getTextBounds(text, 0, text.length(), bound);
 
-        if (bubbleBitmap != null)
-            canvas.drawBitmap(bubbleBitmap, 0, 0, null);
+        textBitmap = Bitmap.createBitmap((int) getPaint().measureText(text), bound.height(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(textBitmap);
+        canvas.drawText(
+                text,
+                textBitmap.getWidth() / 2,
+                bound.height()-bound.bottom,
+                getPaint()
+        );
 
     }
 
     Bitmap getBitmap(){
-        if (bitmap == null)
-            updateBitmap();
         return bitmap;
     }
 
@@ -191,6 +261,43 @@ public abstract class Operand implements IBubble, Cloneable {
         operand.value.setParent(operand);
 
         return operand;
+
+    }
+
+    public float getWidth(){
+
+        if (this.value instanceof GroupOperand)
+            return ((GroupOperand) this.value).getWidth();
+
+        if (bitmap != null)
+            return bitmap.getWidth();
+
+        return 0;
+
+    }
+
+    public Operand getBubbleTouched(float xCoor, float yCoor) {
+
+        if (value instanceof GroupFactor)
+            for (Factor factor : (GroupFactor) value)
+                if (factor.getBubbleTouched(xCoor, yCoor) != null)
+                    return factor.getBubbleTouched(xCoor, yCoor);
+
+        if (value instanceof GroupTerm)
+            for (Term term : (GroupTerm) value)
+                if (term.getBubbleTouched(xCoor, yCoor) != null)
+                    return term.getBubbleTouched(xCoor, yCoor);
+
+        if (this.isTouched(xCoor, yCoor))
+            return this;
+
+        return null;
+
+    }
+
+    public boolean isContentOn(GroupOperand parent) {
+
+        return parent != null && getParentGroup() != null && (getParentGroup() == parent || getParentGroup().isContentOn(parent));
 
     }
 
@@ -213,22 +320,46 @@ public abstract class Operand implements IBubble, Cloneable {
         this.centerX = centerX;
         this.centerY = centerY;
         this.radius = radius;
-        this.bubbleBitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bubbleBitmap = Bitmap.createScaledBitmap(bitmap, (int) (2 * getBubbleRadius()), (int) (2 * getBubbleRadius()), false);
         return this;
     }
 
     @Override
-    public float getCenterX() {
-        return centerX;
+    public float getBubbleCenterX() {
+
+        if (parent == null || isPressed)
+            return this.centerX;
+
+        float centerX = parent.getCenterX(this);
+        float delta = this.centerX - centerX;
+
+        if (Math.abs(delta) > 1)
+            this.centerX -= 0.1 * delta;
+        else if (Math.abs(delta) > 0)
+            this.centerX = centerX;
+
+        return this.centerX;
     }
 
     @Override
-    public float getCenterY() {
-        return centerY;
+    public float getBubbleCenterY() {
+
+        if (parent == null || isPressed)
+            return this.centerY;
+
+        float centerY = parent.getCenterY(this);
+        float delta = this.centerY - centerY;
+
+        if (Math.abs(delta) > 1)
+            this.centerY -= 0.1 * delta;
+        else if (Math.abs(delta) > 0)
+            this.centerY = centerY;
+
+        return this.centerY;
     }
 
     @Override
-    public float getRadius() {
+    public float getBubbleRadius() {
         return radius;
     }
 
@@ -238,70 +369,89 @@ public abstract class Operand implements IBubble, Cloneable {
     }
 
     @Override
-    public void setCenterX(float centerX) {
+    public void updateBubbleBitmap(){
+
+        if (textBitmap == null && (value instanceof GroupOperand)) {
+            radius = (int) ((GroupOperand) value).getWidth() / 2;
+        } else if (textBitmap != null) {
+            radius = (int) (Math.sqrt(Math.pow(textBitmap.getWidth(), 2) + Math.pow(textBitmap.getHeight(), 2)) / 2);
+        }
+
+        if (bubbleBitmap != null && radius > 0)
+            bubbleBitmap = Bitmap.createScaledBitmap(
+                    bubbleBitmap,
+                    (int) (2 * radius),
+                    (int) (2 * radius),
+                    false
+            );
+    }
+
+    @Override
+    public void setBubbleCenterX(float centerX) {
         this.centerX = centerX;
     }
 
     @Override
-    public void setCenterY(float centerY) {
+    public void setBubbleCenterY(float centerY) {
         this.centerY = centerY;
     }
 
     @Override
-    public void setRadius(float radius) {
-        this.radius = radius;
-        if (radius <= 0) {
-            this.bubbleBitmap = null;
-            return;
-        }
-
-        if (getBubbleBitmap() == null)
-            return;
-
-        bubbleBitmap = Bitmap.createScaledBitmap(getBubbleBitmap(), 2 * (int) radius, 2 * (int) radius, true);
+    public void setBubbleRadius(float radius) {
     }
 
     @Override
     public void setBubbleBitmap(Bitmap bubbleBitmap) {
-        this.bubbleBitmap = bubbleBitmap;//Bitmap.createScaledBitmap(bubbleBitmap, (int) (2 * getRadius()), (int) (2 * getRadius()), false);
+        this.bubbleBitmap = bubbleBitmap.copy(bubbleBitmap.getConfig(), true);
     }
 
     @Override
     public boolean isTouched(float xCoor, float yCoor) {
         return Math.sqrt(
-                Math.pow(Math.abs(xCoor-getCenterX()), 2) +
-                        Math.pow(Math.abs(yCoor-getCenterY()), 2)
-        ) <= getRadius();
+                Math.pow(Math.abs(xCoor- getCenterX()), 2) +
+                        Math.pow(Math.abs(yCoor- getCenterY()), 2)
+        ) <= getBubbleRadius();
     }
 
     @Override
     public boolean isBursted() {
-        return isBursted;
+        return false;
     }
 
     @Override
-    public void updateBubble() {
-
-        left = (int) (getCenterX() - getRadius());
-        top = (int) (getCenterY() - getRadius());
-        bubbleBitmap = getBubbleBitmap();
+    public void updateBubbleParams() {
 
         if (value instanceof GroupTerm)
             for (Term term : (GroupTerm) value)
-                term.updateBubble();
+                term.updateBubbleParams();
 
         if (value instanceof GroupFactor)
             for (Factor factor : (GroupFactor) value)
-                factor.updateBubble();
+                factor.updateBubbleParams();
 
-
+        updateBitmap();
 
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (getBitmap() != null)
-            canvas.drawBitmap(getBitmap(), left, top, null);
+
+        if (this.value instanceof GroupFactor)
+            for (Factor factor : ((GroupFactor) this.value))
+                factor.onDraw(canvas);
+
+        else if (this.value instanceof GroupTerm)
+            for (Term term : ((GroupTerm) this.value))
+                term.onDraw(canvas);
+
+        else if (bitmap != null)
+            canvas.drawBitmap(bitmap, left, top, null);
+
+    }
+
+    @Override
+    public void setPressed(boolean isPressed) {
+        this.isPressed = isPressed;
     }
 
     @Override
@@ -320,4 +470,5 @@ public abstract class Operand implements IBubble, Cloneable {
 
 
     }
+
 }
